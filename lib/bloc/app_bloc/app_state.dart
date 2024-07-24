@@ -9,6 +9,8 @@ class AppState {
   final bool isLoading;
   final String? error;
   final UserInfoModel userInfo;
+  final int currentTabIndex;
+  final String chipSelectedCategory;
 
   AppState({
     required this.categories,
@@ -18,6 +20,8 @@ class AppState {
     required this.isLoading,
     this.error,
     required this.userInfo,
+    this.currentTabIndex = 0,
+    this.chipSelectedCategory = ""
   });
 
   AppState copyWith({
@@ -28,6 +32,8 @@ class AppState {
     bool? isLoading,
     String? error,
     UserInfoModel? userInfo,
+    int? currentTabIndex,
+    String? chipSelectedCategory,
   }) {
     return AppState(
       categories: categories ?? this.categories,
@@ -37,6 +43,8 @@ class AppState {
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
       userInfo: userInfo ?? this.userInfo,
+      currentTabIndex: currentTabIndex ?? 0,
+      chipSelectedCategory: chipSelectedCategory ?? this.chipSelectedCategory,
     );
   }
 }

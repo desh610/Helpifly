@@ -1,63 +1,52 @@
 import 'package:flutter/material.dart';
 
-class ChipContainer extends StatefulWidget {
+class ChipContainer extends StatelessWidget {
   final List<String> items;
+  final String selectedItem;
   final Color selectedColor;
   final Color unselectedColor;
   final Color selectedTextColor;
   final Color unselectedTextColor;
   final Function(String) onTap;
-  final String? initialSelectedItem;
 
   ChipContainer({
     required this.items,
+    required this.selectedItem,
     required this.selectedColor,
     required this.unselectedColor,
     required this.selectedTextColor,
     required this.unselectedTextColor,
     required this.onTap,
-    this.initialSelectedItem,
   });
-
-  @override
-  _ChipContainerState createState() => _ChipContainerState();
-}
-
-class _ChipContainerState extends State<ChipContainer> {
-  late String selectedChip;
-
-  @override
-  void initState() {
-    super.initState();
-    selectedChip = widget.initialSelectedItem ?? '';
-  }
 
   @override
   Widget build(BuildContext context) {
     return Wrap(
       spacing: 10.0,
       runSpacing: 10.0,
-      children: widget.items.map<Widget>((word) {
-        bool isSelected = selectedChip == word;
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-              selectedChip = word;
-            });
-            widget.onTap(word);
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
+      children: items.map<Widget>((item) {
+        bool isSelected = item == selectedItem;
+        return Container(
+          decoration: BoxDecoration(
+            color: isSelected ? selectedColor : unselectedColor,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
               borderRadius: BorderRadius.circular(8),
-              color: isSelected ? widget.selectedColor : widget.unselectedColor,
-            ),
-            child: Text(
-              word,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: isSelected ? widget.selectedTextColor : widget.unselectedTextColor,
+              onTap: () {
+                onTap(item);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                child: Text(
+                  item,
+                  style: TextStyle(
+                    color: isSelected ? selectedTextColor : unselectedTextColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
             ),
           ),

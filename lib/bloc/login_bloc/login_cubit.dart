@@ -40,7 +40,7 @@ class LoginCubit extends Cubit<LoginState> {
 
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const MainScreen()), 
+            MaterialPageRoute(builder: (context) => MainScreen()), 
           );
         } else {
           throw Exception('User data not found');
