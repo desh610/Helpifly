@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "137691558963",
+    "project_id": "helpifly-9b7a1",
+    "storage_bucket": "helpifly-9b7a1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:137691558963:android:a5c29af767235c404adf46",
+        "android_client_info": {
+          "package_name": "com.rdprojects.helpifly"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLU25uYFTfAhDS3sAcXjcnRSPwQT4MpBE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
