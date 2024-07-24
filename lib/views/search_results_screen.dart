@@ -15,7 +15,7 @@ class SearchResultsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: primaryColor,
       body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 35),
+        padding: EdgeInsets.only(left: 15, right: 15, top: 35),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
