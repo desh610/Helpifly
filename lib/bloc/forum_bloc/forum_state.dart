@@ -6,12 +6,14 @@ class ForumState {
   final bool isLoading;
   final String? error;
   final bool isFilterMyPosts;
+  final String searchQuery; // Add this field
 
   ForumState({
     required this.posts,
     required this.isLoading,
     this.error,
     required this.isFilterMyPosts,
+     required this.searchQuery,
   });
 
   ForumState copyWith({
@@ -19,12 +21,14 @@ class ForumState {
     bool? isLoading,
     String? error,
     bool? isFilterMyPosts,
+    String? searchQuery,
   }) {
     return ForumState(
       posts: posts ?? this.posts,
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
       isFilterMyPosts: isFilterMyPosts ?? this.isFilterMyPosts,
+      searchQuery: searchQuery ?? this.searchQuery,
     );
   }
 }

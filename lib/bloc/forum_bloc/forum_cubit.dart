@@ -10,12 +10,16 @@ class ForumCubit extends Cubit<ForumState> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static const String _cacheKey = 'cached_posts';
 
-  ForumCubit() : super(ForumState(posts: [], isLoading: false, isFilterMyPosts: false)) {
+  ForumCubit() : super(ForumState(posts: [], isLoading: false, isFilterMyPosts: false, searchQuery: '')) {
     _loadPosts();
   }
 
     void setIsFiterMyPosts(bool isFilterMyPosts) {
     emit(state.copyWith(isFilterMyPosts: isFilterMyPosts));
+  }
+
+   void setSearchQuery(String query) {
+    emit(state.copyWith(searchQuery: query));
   }
 
 Future<void> createPost({
