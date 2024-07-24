@@ -17,6 +17,7 @@ class AppCubit extends Cubit<AppState> {
             products: [],
             services: [],
             isLoading: false,
+            chipSelectedCategory: "Institutes",
             userInfo: UserInfoModel(firstName: '', lastName: '', email: '', uid: ''), currentTabIndex: 0)) {
     _loadCategories();
     _loadItems();
@@ -25,6 +26,9 @@ class AppCubit extends Cubit<AppState> {
 
   void setCurrentTabIndex(int currentTabIndex) {
     emit(state.copyWith(currentTabIndex: currentTabIndex));
+  }
+  void setChipSelectedCategory(String chipSelectedCategory) {
+    emit(state.copyWith(chipSelectedCategory: chipSelectedCategory));
   }
 
   Future<void> _loadCategories() async {

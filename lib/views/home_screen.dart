@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:helpifly/bloc/app_bloc/app_cubit.dart';
 import 'package:helpifly/bloc/app_bloc/app_state.dart';
 import 'package:helpifly/constants/colors.dart';
+import 'package:helpifly/helper/helper_functions.dart';
 import 'package:helpifly/views/search_results_screen.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
 
@@ -39,11 +40,14 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       filteredCategories.clear();
     });
-  Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SearchResultsScreen()),
-            );
-
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SearchResultsScreen()),
+    );
+    // DO NOT CHANGE BELOW CLEARING ORDER
+    closeKeyboard(context);
+    searchTextController.clear();
+    _dismissSuggestions();
   }
 
   void _dismissSuggestions() {
@@ -140,13 +144,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (context, state) {
                     return ChipContainer(
                       items: state.categories.take(5).toList(),
-                      initialSelectedItem: "Institutes",
+                      initialSelectedItem: state.chipSelectedCategory,
                       selectedColor: secondaryColor,
                       unselectedColor: cardColor,
                       selectedTextColor: black,
                       unselectedTextColor: white,
                       onTap: (selectedItem) {
+                        BlocProvider.of<AppCubit>(context).setChipSelectedCategory(selectedItem);
                         print('Selected: $selectedItem');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SearchResultsScreen()),
+                        );
                       },
                     );
                   },
@@ -203,7 +213,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Text(
                                     state.products[index].title,
                                     style: TextStyle(
-                                        color: white, fontWeight: FontWeight.w500),
+                                        color: white,
+                                        fontWeight: FontWeight.w500),
                                   ),
                                   Text(
                                     state.products[index].title2,
@@ -278,7 +289,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Text(
                                     "Telecommunication Service Provider",
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(color: white, fontSize: 10),
+                                    style:
+                                        TextStyle(color: white, fontSize: 10),
                                   ),
                                 ],
                               ),

@@ -40,23 +40,21 @@ class SearchResultsScreen extends StatelessWidget {
               onChanged: (p0) {},
             ),
             SizedBox(height: 15),
-            ChipContainer(
-              items: [
-                "Institutes",
-                "Vehicles",
-                "Smartphones",
-                "Internets",
-                "Telecom Providers"
-              ],
-              initialSelectedItem: "Institutes",
-              selectedColor: secondaryColor,
-              unselectedColor: cardColor,
-              selectedTextColor: black,
-              unselectedTextColor: white,
-              onTap: (selectedItem) {
-                print('Selected: $selectedItem');
-              },
-            ),
+             BlocBuilder<AppCubit, AppState>(
+                  builder: (context, state) {
+                    return ChipContainer(
+                      items: state.categories.take(5).toList(),
+                      initialSelectedItem: state.chipSelectedCategory,
+                      selectedColor: secondaryColor,
+                      unselectedColor: cardColor,
+                      selectedTextColor: black,
+                      unselectedTextColor: white,
+                      onTap: (selectedItem) {
+                        BlocProvider.of<AppCubit>(context).setChipSelectedCategory(selectedItem);
+                      },
+                    );
+                  },
+                ),
             SizedBox(height: 15),
             Text(
               "Top educational institute",
