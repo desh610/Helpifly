@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:helpifly/bloc/app_bloc/app_cubit.dart';
 import 'package:helpifly/bloc/app_bloc/app_state.dart';
 import 'package:helpifly/constants/colors.dart';
+import 'package:helpifly/views/search_results_screen.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -38,6 +39,11 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       filteredCategories.clear();
     });
+  Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SearchResultsScreen()),
+            );
+
   }
 
   void _dismissSuggestions() {

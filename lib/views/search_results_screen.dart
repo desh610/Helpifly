@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:helpifly/bloc/app_bloc/app_cubit.dart';
+import 'package:helpifly/bloc/app_bloc/app_state.dart';
 import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
 
@@ -12,10 +15,17 @@ class SearchResultsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: primaryColor,
       body: Container(
-        padding: EdgeInsets.only(left: 15, right: 15, top: 40),
+        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 35),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Icon(Icons.arrow_back_ios_new_rounded, color: white),
+            ),
+            SizedBox(height: 5),
             Text(
               "Search results for\nEducational Institute",
               style: TextStyle(
@@ -25,9 +35,10 @@ class SearchResultsScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 15),
-            CustomSearchBar(controller: searchTextController, onChanged: (p0) {
-              
-            },),
+            CustomSearchBar(
+              controller: searchTextController,
+              onChanged: (p0) {},
+            ),
             SizedBox(height: 15),
             ChipContainer(
               items: [
@@ -76,10 +87,37 @@ class SearchResultsScreen extends StatelessWidget {
           ],
         ),
       ),
-        bottomNavigationBar: Container(
-        height: 50,
-        width: MediaQuery.of(context).size.width,
-        color: inCardColor,
+      bottomNavigationBar: BlocBuilder<AppCubit, AppState>(
+        builder: (context, state) {
+          return BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.forum),
+                label: 'Forum',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: 'Profile',
+              ),
+            ],
+            currentIndex: 0, // Default to Home
+            onTap: (index) {
+              if (index == 0) {
+                Navigator.pop(context); // Navigate back to Home
+              } else {
+                context.read<AppCubit>().setCurrentTabIndex(index);
+                Navigator.pop(context); // Navigate back and set the appropriate tab
+              }
+            },
+            selectedItemColor: grayColor,
+            unselectedItemColor: Colors.grey,
+            backgroundColor: inCardColor,
+          );
+        },
       ),
     );
   }
