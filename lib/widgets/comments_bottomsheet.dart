@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:helpifly/bloc/app_bloc/app_cubit.dart';
+import 'package:helpifly/bloc/app_bloc/app_state.dart';
 import 'package:helpifly/bloc/forum_bloc/forum_cubit.dart';
 import 'package:helpifly/bloc/forum_bloc/forum_state.dart';
 import 'package:helpifly/constants/colors.dart';
@@ -62,8 +64,9 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
               },
               builder: (context, state) {
                 // Get the post with comments
-                final postWithComments = state.posts
-                    .firstWhere((e) => e.id == widget.post.id, orElse: () => widget.post);
+                final postWithComments = state.posts.firstWhere(
+                    (e) => e.id == widget.post.id,
+                    orElse: () => widget.post);
 
                 return CustomScrollView(
                   controller: _scrollController,
@@ -92,11 +95,29 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).pop();
+                                BlocBuilder<AppCubit, AppState>(
+                                  builder: (context, state) {
+                                    return GestureDetector(
+                                      onTap: () async {
+                                        // Call the deletePost method and wait for it to complete
+                                        try {
+                                          await BlocProvider.of<ForumCubit>(context).deletePost(widget.post.id);
+                                          // Optionally show a success message or handle post-deletion logic
+                                        } catch (e) {
+                                          // Handle the error if necessary
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Failed to delete post: $e')),
+                                          );
+                                        } finally {
+                                          // Pop the current screen regardless of success or failure
+                                          Navigator.of(context).pop();
+                                        }
+                                      },
+
+                                      child: state.userInfo.uid == widget.post.createdBy ? Icon(Icons.delete,
+                                          color: Colors.red, size: 22) : SizedBox(),
+                                    );
                                   },
-                                  child: Icon(Icons.close_rounded, color: grayColor, size: 24),
                                 ),
                               ],
                             ),
@@ -130,7 +151,8 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                           if (index < postWithComments.comments.length) {
                             Comment comment = postWithComments.comments[index];
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 15),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -164,7 +186,8 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                     ),
                     // Adding padding at the bottom to ensure space for the last comment
                     SliverToBoxAdapter(
-                      child: SizedBox(height: 0), // Adjust this height if needed
+                      child:
+                          SizedBox(height: 0), // Adjust this height if needed
                     ),
                   ],
                 );
@@ -208,7 +231,8 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                     // COMMENT SEND ACTION
                     BlocProvider.of<ForumCubit>(context).addComment(
                         postId: widget.post.id, commentText: commentText);
-                    _responseController.clear(); // Clear the text field after sending
+                    _responseController
+                        .clear(); // Clear the text field after sending
 
                     // Scroll to bottom after adding a comment
                     // Future.delayed(Duration(milliseconds: 1000), (){

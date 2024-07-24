@@ -157,7 +157,18 @@ Future<void> addComment({
 }
 
 
+ Future<void> deletePost(String postId) async {
+    emit(state.copyWith(isLoading: true));
+    try {
+      // Delete the post from Firestore
+      await _firestore.collection('posts').doc(postId).delete();
 
+      emit(state.copyWith(isLoading: false));
+      _fetchPostsAndUpdateCache(); // Refresh the list of posts after deletion
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: 'Failed to delete post: $e'));
+    }
+  }
 
 
 
