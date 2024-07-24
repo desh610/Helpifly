@@ -3,7 +3,9 @@ import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
 
 class SearchResultsScreen extends StatelessWidget {
-  const SearchResultsScreen({super.key});
+  SearchResultsScreen({super.key});
+
+  final TextEditingController searchTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,9 @@ class SearchResultsScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 15),
-            CustomSearchBar(),
+            CustomSearchBar(controller: searchTextController, onChanged: (p0) {
+              
+            },),
             SizedBox(height: 15),
             ChipContainer(
               items: [

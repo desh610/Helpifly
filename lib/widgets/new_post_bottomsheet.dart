@@ -5,11 +5,23 @@ import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/widgets/custom_button.dart';
 import 'package:helpifly/widgets/custom_textfield.dart';
 
-class NewPostBottomSheet extends StatelessWidget {
-  NewPostBottomSheet({super.key});
+class NewPostBottomSheet extends StatefulWidget {
+  const NewPostBottomSheet({super.key});
 
+  @override
+  _NewPostBottomSheetState createState() => _NewPostBottomSheetState();
+}
+
+class _NewPostBottomSheetState extends State<NewPostBottomSheet> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,12 +85,9 @@ class NewPostBottomSheet extends StatelessWidget {
                   SizedBox(height: 40),
                   CustomButton(
                     onTap: () {
-                      // Assuming 'createdBy' is the user id or username
-                      String createdBy = "user123"; // Replace with actual user ID or username
                       context.read<ForumCubit>().createPost(
                         title: _titleController.text,
                         description: _descriptionController.text,
-                        createdBy: createdBy,
                       );
                       Navigator.of(context).pop(); // Close the bottom sheet after publishing
                     },

@@ -11,44 +11,14 @@ import 'package:helpifly/widgets/widgets_exporter.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String? firstName;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadUserInfo();
-  }
-
-  Future<void> _loadUserInfo() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userInfoJson = prefs.getString('user_info');
-    if (userInfoJson != null) {
-      try {
-        Map<String, dynamic> userMap = jsonDecode(userInfoJson);
-        UserInfoModel userInfo = UserInfoModel.fromJson(userMap);
-        setState(() {
-          firstName = userInfo.firstName;
-        });
-      } catch (e) {
-        // Handle JSON decode error
-        setState(() {
-          firstName = 'User';
-        });
-        print('Error decoding user info: $e');
-      }
-    } else {
-      // Fallback to a default name if SharedPreferences is null
-      setState(() {
-        firstName = 'User';
-      });
-    }
-  }
-
+  final TextEditingController searchTextController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,14 +33,16 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Welcome ${firstName ?? 'User'},",
-                    style: const TextStyle(
+                  BlocBuilder<AppCubit, AppState>(
+                    builder: (context, state) {
+                      final userInfo = state.userInfo;
+                      return Text("Welcome ${userInfo.firstName},", style: const TextStyle(
                       color: white,
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
                       letterSpacing: 1.6,
-                    ),
+                    ),);
+                    },
                   ),
                   const Icon(Icons.notifications_rounded, color: white),
                 ],
@@ -84,7 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 15),
-              CustomSearchBar(),
+              CustomSearchBar(controller: searchTextController, onChanged: (p0) {
+                
+              },),
               const SizedBox(height: 15),
               BlocBuilder<AppCubit, AppState>(
                 builder: (context, state) {

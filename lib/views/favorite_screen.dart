@@ -3,7 +3,9 @@ import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
 
 class FavoriteScreen extends StatelessWidget {
-  const FavoriteScreen({super.key});
+  FavoriteScreen({super.key});
+
+  final TextEditingController searchTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,7 @@ class FavoriteScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 15),
-            CustomSearchBar(),
+            CustomSearchBar(controller: searchTextController, onChanged: (String ) {  },),
             SizedBox(height: 20),
             Text(
               "Favorite selections",

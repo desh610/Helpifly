@@ -3,6 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:helpifly/constants/colors.dart';
 
 class CustomSearchBar extends StatelessWidget {
+  final TextEditingController controller;
+  final void Function(String) onChanged;
+
+  const CustomSearchBar({
+    super.key,
+    required this.controller,
+    required this.onChanged,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -22,10 +31,12 @@ class CustomSearchBar extends StatelessWidget {
           SizedBox(width: 8.0), // Add some spacing between the icon and the text field
           Expanded(
             child: TextField(
+              controller: controller,
+              onChanged: onChanged, // Pass the onChanged callback
               decoration: InputDecoration(
                 hintText: 'Search product or service',
                 border: InputBorder.none,
-                hintStyle: TextStyle(fontSize: 16, color: grayColor)
+                hintStyle: TextStyle(fontSize: 16, color: grayColor),
               ),
             ),
           ),
