@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 String timeAgo(DateTime dateTime) {
@@ -42,3 +43,10 @@ Future<Map<String, String>> getUserInfo(String uid) async {
     return {'firstName': 'Unknown', 'lastName': 'User'};
   }
 }
+
+ void closeKeyboard(BuildContext context) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.unfocus();
+    }
+  }

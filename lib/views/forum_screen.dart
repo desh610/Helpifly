@@ -152,7 +152,10 @@ class ForumScreen extends StatelessWidget {
                           ? filteredPosts.where((e) => e.createdBy == userInfo.uid).toList()[index] 
                           : filteredPosts[index];
                       return GestureDetector(
-                        onTap: () => _showCommentsBottomSheet(context, post),
+                        onTap: () {
+                          closeKeyboard(context);
+                         _showCommentsBottomSheet(context, post);
+                        },
                         child: Container(
                           width: MediaQuery.of(context).size.width,
                           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
