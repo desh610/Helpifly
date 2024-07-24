@@ -17,10 +17,14 @@ class AppCubit extends Cubit<AppState> {
             products: [],
             services: [],
             isLoading: false,
-            userInfo: UserInfoModel(firstName: '', lastName: '', email: '', uid: ''))) {
+            userInfo: UserInfoModel(firstName: '', lastName: '', email: '', uid: ''), currentTabIndex: 0)) {
     _loadCategories();
     _loadItems();
     _loadUserInfo();
+  }
+
+  void setCurrentTabIndex(int currentTabIndex) {
+    emit(state.copyWith(currentTabIndex: currentTabIndex));
   }
 
   Future<void> _loadCategories() async {
