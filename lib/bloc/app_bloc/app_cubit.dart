@@ -27,9 +27,10 @@ class AppCubit extends Cubit<AppState> {
   void setCurrentTabIndex(int currentTabIndex) {
     emit(state.copyWith(currentTabIndex: currentTabIndex));
   }
-  void setChipSelectedCategory(String chipSelectedCategory) {
-    emit(state.copyWith(chipSelectedCategory: chipSelectedCategory));
-  }
+ void setChipSelectedCategory(String chipSelectedCategory) {
+  emit(state.copyWith(chipSelectedCategory: chipSelectedCategory));
+}
+
 
   Future<void> _loadCategories() async {
     emit(state.copyWith(isLoading: true));

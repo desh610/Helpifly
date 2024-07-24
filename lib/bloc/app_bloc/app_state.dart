@@ -10,7 +10,7 @@ class AppState {
   final String? error;
   final UserInfoModel userInfo;
   final int currentTabIndex;
-  final String? chipSelectedCategory;
+  final String chipSelectedCategory;
 
   AppState({
     required this.categories,
@@ -21,7 +21,7 @@ class AppState {
     this.error,
     required this.userInfo,
     this.currentTabIndex = 0,
-    this.chipSelectedCategory = "Institutes"
+    this.chipSelectedCategory = ""
   });
 
   AppState copyWith({
@@ -44,7 +44,7 @@ class AppState {
       error: error ?? this.error,
       userInfo: userInfo ?? this.userInfo,
       currentTabIndex: currentTabIndex ?? 0,
-      chipSelectedCategory: chipSelectedCategory ?? "Institutes",
+      chipSelectedCategory: chipSelectedCategory ?? this.chipSelectedCategory,
     );
   }
 }

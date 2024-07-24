@@ -40,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       filteredCategories.clear();
     });
+    BlocProvider.of<AppCubit>(context).setChipSelectedCategory(suggestion);
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => SearchResultsScreen()),
@@ -111,7 +112,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     CustomSearchBar(
                       controller: searchTextController,
-                      onChanged: (text) {},
+                      onChanged: (text) {
+                       
+                      },
                     ),
                     if (filteredCategories.isNotEmpty)
                       Container(
@@ -144,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (context, state) {
                     return ChipContainer(
                       items: state.categories.take(5).toList(),
-                      initialSelectedItem: state.chipSelectedCategory,
+                      selectedItem: state.chipSelectedCategory,
                       selectedColor: secondaryColor,
                       unselectedColor: cardColor,
                       selectedTextColor: black,
