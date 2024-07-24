@@ -60,6 +60,7 @@ class ForumCubit extends Cubit<ForumState> {
           .toList();
 
       emit(state.copyWith(posts: cachedPosts, isLoading: false));
+      _fetchPostsAndUpdateCache();
     } else {
       // No cache, fetch from Firestore
       _fetchPostsAndUpdateCache();

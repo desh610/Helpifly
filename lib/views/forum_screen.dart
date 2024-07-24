@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:helpifly/bloc/app_bloc/app_cubit.dart';
+import 'package:helpifly/bloc/app_bloc/app_state.dart';
 import 'package:helpifly/bloc/forum_bloc/forum_cubit.dart';
 import 'package:helpifly/bloc/forum_bloc/forum_state.dart';
 import 'package:helpifly/constants/colors.dart';
@@ -45,15 +47,17 @@ class ForumScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Welcome Julie,",
-              style: TextStyle(
-                color: white,
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 1.6,
-              ),
-            ),
+              BlocBuilder<AppCubit, AppState>(
+                    builder: (context, state) {
+                      final userInfo = state.userInfo;
+                      return Text("Welcome ${userInfo.firstName},", style: const TextStyle(
+                      color: white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1.6,
+                    ),);
+                    },
+                  ),
             Text(
               "Share your problems\nfor community support",
               style: TextStyle(
@@ -121,9 +125,9 @@ class ForumScreen extends StatelessWidget {
                   child: ListView.builder(
                     shrinkWrap: true,
                     physics: BouncingScrollPhysics(),
-                    itemCount: state.posts.length,
+                    itemCount: state.isFilterMyPosts ? state.posts.where((e) => e.createdBy == "user123").length : state.posts.length,
                     itemBuilder: (context, index) {
-                      final post = state.posts[index];
+                      final post = state.isFilterMyPosts ? state.posts.where((e) => e.createdBy == "user123").toList()[index] : state.posts[index];
                       return GestureDetector(
                         onTap: () => _showCommentsBottomSheet(context),
                         child: Container(

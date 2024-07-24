@@ -1,4 +1,5 @@
 import 'package:helpifly/models/item_model.dart';
+import 'package:helpifly/models/user_info_model.dart';
 
 class AppState {
   final List<String> categories;
@@ -7,6 +8,7 @@ class AppState {
   final List<ItemModel> services;
   final bool isLoading;
   final String? error;
+  final UserInfoModel userInfo;
 
   AppState({
     required this.categories,
@@ -15,6 +17,7 @@ class AppState {
     required this.services,
     required this.isLoading,
     this.error,
+    required this.userInfo,
   });
 
   AppState copyWith({
@@ -24,6 +27,7 @@ class AppState {
     List<ItemModel>? services,
     bool? isLoading,
     String? error,
+    UserInfoModel? userInfo,
   }) {
     return AppState(
       categories: categories ?? this.categories,
@@ -32,6 +36,7 @@ class AppState {
       services: services ?? this.services,
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
+      userInfo: userInfo ?? this.userInfo,
     );
   }
 }
