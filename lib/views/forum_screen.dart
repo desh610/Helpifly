@@ -13,7 +13,9 @@ import 'package:helpifly/widgets/comments_bottomsheet.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
 
 class ForumScreen extends StatelessWidget {
-  const ForumScreen({super.key});
+  ForumScreen({super.key});
+
+  final TextEditingController searchTextController = TextEditingController();
 
   void _showNewPostBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -70,7 +72,9 @@ class ForumScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 15),
-            CustomSearchBar(),
+            CustomSearchBar(controller: searchTextController, onChanged: (p0) {
+              
+            },),
             SizedBox(height: 15),
             BlocBuilder<ForumCubit, ForumState>(
               builder: (context, state) {

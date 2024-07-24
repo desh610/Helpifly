@@ -11,12 +11,14 @@ import 'package:helpifly/widgets/widgets_exporter.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
 
+  final TextEditingController searchTextController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 15),
-              CustomSearchBar(),
+              CustomSearchBar(controller: searchTextController, onChanged: (p0) {
+                
+              },),
               const SizedBox(height: 15),
               BlocBuilder<AppCubit, AppState>(
                 builder: (context, state) {
