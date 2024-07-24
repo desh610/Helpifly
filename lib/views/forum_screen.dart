@@ -6,6 +6,9 @@ import 'package:helpifly/bloc/app_bloc/app_state.dart';
 import 'package:helpifly/bloc/forum_bloc/forum_cubit.dart';
 import 'package:helpifly/bloc/forum_bloc/forum_state.dart';
 import 'package:helpifly/constants/colors.dart';
+import 'package:helpifly/helper/helper_functions.dart';
+import 'package:helpifly/models/post_model.dart';
+import 'package:helpifly/models/user_info_model.dart';
 import 'package:helpifly/widgets/comments_bottomsheet.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
 
@@ -25,7 +28,7 @@ class ForumScreen extends StatelessWidget {
     );
   }
 
-  void _showCommentsBottomSheet(BuildContext context) {
+  void _showCommentsBottomSheet(BuildContext context, PostModel post) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -33,7 +36,7 @@ class ForumScreen extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
       ),
       builder: (BuildContext context) {
-        return CommentsBottomSheet();
+        return CommentsBottomSheet(post: post);
       },
     );
   }
@@ -121,15 +124,16 @@ class ForumScreen extends StatelessWidget {
             SizedBox(height: 8),
             BlocBuilder<ForumCubit, ForumState>(
               builder: (context, state) {
+                UserInfoModel userInfo = BlocProvider.of<AppCubit>(context).state.userInfo;
                 return Expanded(
                   child: ListView.builder(
                     shrinkWrap: true,
                     physics: BouncingScrollPhysics(),
-                    itemCount: state.isFilterMyPosts ? state.posts.where((e) => e.createdBy == "user123").length : state.posts.length,
+                    itemCount: state.isFilterMyPosts ? state.posts.where((e) => e.createdBy == userInfo.uid).length : state.posts.length,
                     itemBuilder: (context, index) {
-                      final post = state.isFilterMyPosts ? state.posts.where((e) => e.createdBy == "user123").toList()[index] : state.posts[index];
+                      final post = state.isFilterMyPosts ? state.posts.where((e) => e.createdBy == userInfo.uid).toList()[index] : state.posts[index];
                       return GestureDetector(
-                        onTap: () => _showCommentsBottomSheet(context),
+                        onTap: () => _showCommentsBottomSheet(context, post),
                         child: Container(
                           width: MediaQuery.of(context).size.width,
                           padding:
@@ -158,19 +162,20 @@ class ForumScreen extends StatelessWidget {
                                       ),
                                       SizedBox(width: 6),
                                       Text(
-                                        post.createdBy, // Assuming createdBy contains the username
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: white,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.8,
-                                        ),
+                                      '${post.firstName ?? ""} ${post.lastName ?? ""}', // Concatenate firstName and lastName
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: white, // Assuming white is a color variable
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.8,
                                       ),
+                                    )
+
                                     ],
                                   ),
                                   Text(
                                     // Format this according to your needs
-                                    "Just now", // Placeholder for timestamp
+                                    timeAgo(post.createdAt.toDate()), // Placeholder for timestamp
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: grayColor,
@@ -205,7 +210,7 @@ class ForumScreen extends StatelessWidget {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "12 Answered", // Placeholder for answer count
+                                    "${post.comments.length} Answered", // Placeholder for answer count
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: grayColor,
@@ -215,7 +220,7 @@ class ForumScreen extends StatelessWidget {
                                   ),
                                   CustomButton(
                                     onTap: () =>
-                                        _showCommentsBottomSheet(context),
+                                        _showCommentsBottomSheet(context, post),
                                     buttonText: "Comments",
                                     buttonColor: cardGrayColor,
                                     textColor: lightGrayColor,

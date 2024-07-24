@@ -73,12 +73,9 @@ class NewPostBottomSheet extends StatelessWidget {
                   SizedBox(height: 40),
                   CustomButton(
                     onTap: () {
-                      // Assuming 'createdBy' is the user id or username
-                      String createdBy = "user123"; // Replace with actual user ID or username
                       context.read<ForumCubit>().createPost(
                         title: _titleController.text,
                         description: _descriptionController.text,
-                        createdBy: createdBy,
                       );
                       Navigator.of(context).pop(); // Close the bottom sheet after publishing
                     },

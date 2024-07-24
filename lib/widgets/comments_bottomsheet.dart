@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:helpifly/bloc/forum_bloc/forum_cubit.dart';
+import 'package:helpifly/bloc/forum_bloc/forum_state.dart';
 import 'package:helpifly/constants/colors.dart';
+import 'package:helpifly/models/post_model.dart';
 
 class CommentsBottomSheet extends StatelessWidget {
-  CommentsBottomSheet({super.key});
+  final PostModel post;
+  CommentsBottomSheet({super.key, required this.post});
 
   final TextEditingController _responseController = TextEditingController();
 
@@ -29,7 +34,7 @@ class CommentsBottomSheet extends StatelessWidget {
                           color: grayColor, size: 20),
                     ),
                     Text(
-                      "Julie's post",
+                      "${post.firstName}'s post",
                       style: TextStyle(
                         fontSize: 16,
                         color: white,
@@ -40,7 +45,8 @@ class CommentsBottomSheet extends StatelessWidget {
                       onTap: () {
                         Navigator.of(context).pop();
                       },
-                      child: Icon(Icons.close_rounded, color: grayColor, size: 24),
+                      child:
+                          Icon(Icons.close_rounded, color: grayColor, size: 24),
                     ),
                   ],
                 ),
@@ -55,7 +61,7 @@ class CommentsBottomSheet extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Is this a sample community question?",
+                          post.title,
                           style: TextStyle(
                             fontSize: 18,
                             color: white,
@@ -65,7 +71,7 @@ class CommentsBottomSheet extends StatelessWidget {
                         ),
                         SizedBox(height: 6),
                         Text(
-                          "With Chrome profiles you can separate all your Chrome stuff. Create profiles for friends and family, or split between work and fun. Read more.",
+                          post.description,
                           style: TextStyle(
                             fontSize: 12,
                             color: grayColor,
@@ -74,26 +80,42 @@ class CommentsBottomSheet extends StatelessWidget {
                         ),
                         SizedBox(height: 20),
                         // Example comments
-                        for (int i = 0; i < 10; i++) ...[
-                          Text(
-                            "Test user",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: grayColor,
-                              letterSpacing: 0.36,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            "This is a sample comment from test user right.",
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: white,
-                              letterSpacing: 0.36,
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                        ],
+
+                        BlocBuilder<ForumCubit, ForumState>(
+                          builder: (context, state) {
+                            return ListView.builder(
+                              physics: BouncingScrollPhysics(),
+                                shrinkWrap: true,
+                                itemCount: state.posts.firstWhere((e) => e.id == post.id).comments.length,
+                                itemBuilder: (context, index) {
+                                  Comment comment = state.posts.firstWhere((e) => e.id == post.id).comments[index];
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        comment.commentedBy,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: grayColor,
+                                          letterSpacing: 0.36,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        comment.commentText,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: white,
+                                          letterSpacing: 0.36,
+                                        ),
+                                      ),
+                                      SizedBox(height: 20),
+                                    ],
+                                  );
+                                });
+                          },
+                        )
                       ],
                     ),
                   ),
@@ -123,15 +145,27 @@ class CommentsBottomSheet extends StatelessWidget {
                           borderRadius: BorderRadius.circular(0.0),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 20),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 20),
                       ),
                     ),
                   ),
                   // SizedBox(width: 10),
                   GestureDetector(
                     onTap: () {
-                      // Add your send action here
+                      final commentText = _responseController.text.trim();
+                      if (commentText.isEmpty) {
+                        // Show an error message or indication if the comment text is empty
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Comment cannot be empty')),
+                        );
+                        return;
+                      }
+
+                      // COMMENT SEND ACTION
+                      BlocProvider.of<ForumCubit>(context).addComment(
+                          postId: post.id, commentText: commentText);
+                      _responseController
+                          .clear(); // Clear the text field after sending
                     },
                     child: Padding(
                       padding: const EdgeInsets.only(right: 8),
