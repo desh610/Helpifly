@@ -129,10 +129,19 @@ Future<void> addComment({
 
     String uid = currentUser.uid;
 
+    // Fetch user information
+    DocumentSnapshot<Map<String, dynamic>> userDoc =
+        await _firestore.collection('users').doc(uid).get();
+    final userData = userDoc.data() ?? {};
+    String firstName = userData['firstName'] ?? 'Unknown';
+    String lastName = userData['lastName'] ?? 'Unknown';
+
     // Create a new Comment object
     Comment newComment = Comment(
       commentText: commentText,
       commentedBy: uid,
+      firstName: firstName,
+      lastName: lastName,
     );
 
     // Update the comments field of the specified post
@@ -146,6 +155,7 @@ Future<void> addComment({
     emit(state.copyWith(isLoading: false, error: 'Failed to add comment: $e'));
   }
 }
+
 
 
 

@@ -94,7 +94,7 @@ class CommentsBottomSheet extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        comment.commentedBy,
+                                        "${comment.firstName ?? ""} ${comment.lastName ?? ""}",
                                         style: TextStyle(
                                           fontSize: 16,
                                           color: grayColor,

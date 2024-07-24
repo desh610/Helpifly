@@ -3,10 +3,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Comment {
   final String commentText;
   final String commentedBy;
+  final String? firstName;
+  final String? lastName;
 
   Comment({
     required this.commentText,
     required this.commentedBy,
+    this.firstName,
+    this.lastName,
   });
 
   // Convert Comment to JSON
@@ -14,16 +18,21 @@ class Comment {
     return {
       'commentText': commentText,
       'commentedBy': commentedBy,
+      'firstName': firstName ?? "",
+      'lastName': lastName ?? "",
     };
   }
 
   factory Comment.fromJson(Map<String, dynamic> json) {
     return Comment(
-      commentText: json['commentText'] as String,
-      commentedBy: json['commentedBy'] as String,
+      commentText: json['commentText'],
+      commentedBy: json['commentedBy'],
+      firstName: json['firstName'] ?? "",
+      lastName: json['lastName'] ?? "",
     );
   }
 }
+
 
 class PostModel {
   final String id;
