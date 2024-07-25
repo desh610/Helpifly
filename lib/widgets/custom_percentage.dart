@@ -26,7 +26,7 @@ class CustomPercentage extends StatelessWidget {
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   color: white,
                   fontWeight: FontWeight.w500,
                 ),
@@ -34,7 +34,7 @@ class CustomPercentage extends StatelessWidget {
               Text(
                 percentage,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   color: white,
                   fontWeight: FontWeight.w500,
                 ),
@@ -43,7 +43,7 @@ class CustomPercentage extends StatelessWidget {
           ),
           SizedBox(height: 8),
           Container(
-            height: 15,
+            height: 10,
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
               // color: cardColor,

@@ -10,3 +10,4 @@ const lightGrayColor = Color(0xFFF5F5F5);
 const cardGrayColor = Color(0xFF878995);
 const cardColor = Color(0xFF3A3B40);
 const inCardColor = Color(0xFF434343);
+const green = Color(0xFF24DE53);

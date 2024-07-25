@@ -6,6 +6,7 @@ import 'package:helpifly/bloc/app_bloc/app_cubit.dart';
 import 'package:helpifly/bloc/forum_bloc/forum_cubit.dart';
 import 'package:helpifly/bloc/login_bloc/login_cubit.dart';
 import 'package:helpifly/bloc/signup_bloc/signup_cubit.dart';
+import 'package:helpifly/bloc/url_results_bloc/url_results_cubit.dart';
 import 'package:helpifly/views/home_screen.dart';
 import 'package:helpifly/views/login_screen.dart';
 import 'package:helpifly/views/main_screen.dart';
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => LoginCubit()),
         BlocProvider(create: (context) => AppCubit()),
         BlocProvider(create: (context) => ForumCubit()),
+        BlocProvider(create: (context) => UrlResultsCubit()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -12,6 +12,8 @@ class CustomTextField extends StatelessWidget {
   final int minLines;
   final Color backgroundColor;
   final bool enabled; // Added enabled property
+  final String? buttonText; // Optional button text
+  final VoidCallback? onTapTextButton; // Callback for button press
 
   const CustomTextField({
     Key? key,
@@ -25,21 +27,32 @@ class CustomTextField extends StatelessWidget {
     this.minLines = 1, 
     this.backgroundColor = cardColor,
     this.enabled = true, // Default to true
+    this.buttonText, // Optional button text
+    this.onTapTextButton, // Callback for button press
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               overlineText,
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: white),
             ),
+              if (buttonText != null) // Conditionally show the button if buttonText is not null
+          TextButton(
+            onPressed: onTapTextButton,
+            child: Text(
+              buttonText!,
+              style: TextStyle(color: white),
+            ),
+          ),
           ],
         ),
-        const SizedBox(height: 8),
         SizedBox(
           child: Container(
             decoration: BoxDecoration(
@@ -67,6 +80,7 @@ class CustomTextField extends StatelessWidget {
             ),
           ),
         ),
+      
       ],
     );
   }
