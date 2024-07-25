@@ -82,7 +82,7 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
                 children: [
                   CustomTextField(
                     controller: _reviewController,
-                    hintText: "Enter review here",
+                    hintText: canAddReview ? "Enter review here" : "Select review to update",
                     overlineText: "Review",
                     minLines: 3,
                     maxLines: 3,
