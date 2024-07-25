@@ -275,6 +275,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                   label: 'Home',
                 ),
                 BottomNavigationBarItem(
+                  icon: Icon(Icons.web),
+                  label: 'URL',
+                ),
+                BottomNavigationBarItem(
                   icon: Icon(Icons.forum),
                   label: 'Forum',
                 ),
@@ -295,6 +299,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
               selectedItemColor: grayColor,
               unselectedItemColor: Colors.grey,
               backgroundColor: inCardColor,
+              type: BottomNavigationBarType.fixed
             );
           },
         ),

@@ -6,12 +6,14 @@ import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/views/forum_screen.dart';
 import 'package:helpifly/views/home_screen.dart';
 import 'package:helpifly/views/profile_screen.dart';
+import 'package:helpifly/views/url_results_screen.dart';
 
 class MainScreen extends StatelessWidget {
   MainScreen({super.key});
 
   final List<Widget> _screens = [
     const HomeScreen(),
+    UrlResultsScreen(),
     ForumScreen(),
     const ProfileScreen(),
   ];
@@ -37,6 +39,10 @@ class MainScreen extends StatelessWidget {
                 label: 'Home',
               ),
               BottomNavigationBarItem(
+                icon: Icon(Icons.web),
+                label: 'URL',
+              ),
+              BottomNavigationBarItem(
                 icon: Icon(Icons.forum),
                 label: 'Forum',
               ),
@@ -50,6 +56,7 @@ class MainScreen extends StatelessWidget {
             selectedItemColor: grayColor,
             unselectedItemColor: Colors.grey,
             backgroundColor: inCardColor,
+            type: BottomNavigationBarType.fixed,
           );
         },
       ),

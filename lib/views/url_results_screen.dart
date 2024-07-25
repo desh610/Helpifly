@@ -1,12 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:helpifly/bloc/url_results_bloc/url_results_cubit.dart';
+import 'package:helpifly/bloc/url_results_bloc/url_results_state.dart';
 import 'package:helpifly/constants/colors.dart';
+import 'package:helpifly/helper/helper_functions.dart';
 import 'package:helpifly/widgets/custom_textfield.dart';
+import 'package:helpifly/widgets/custom_button.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 
-class UrlResulsSccreen extends StatelessWidget {
-  UrlResulsSccreen({super.key});
+class UrlResultsScreen extends StatelessWidget {
+  UrlResultsScreen({super.key});
 
   final TextEditingController _urlController = TextEditingController();
 
@@ -14,7 +19,7 @@ class UrlResulsSccreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: primaryColor,
-      body: Container(
+      body: Padding(
         padding: EdgeInsets.only(left: 15, right: 15, top: 40),
         child: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
@@ -29,57 +34,112 @@ class UrlResulsSccreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              SizedBox(height: 0),
+              CustomTextField(
+                controller: _urlController,
+                hintText: "Enter product URL here",
+                overlineText: "Product URL",
+                minLines: 5,
+                maxLines: 5,
+                buttonText: "Clear",
+                onTapTextButton: () {
+                  _urlController.clear();
+                  context.read<UrlResultsCubit>().reset();
+                },
+              ),
               SizedBox(height: 15),
-               CustomTextField(controller: _urlController, hintText: "Enter product URL here", overlineText: "Product URL", minLines: 5, maxLines: 5),
-              SizedBox(height: 15),
-              Text("Results", style: TextStyle(fontSize: 20, color: white, fontWeight: FontWeight.bold)),
-                SizedBox(height: 15),
-                CustomPercentage(
-                  title: "Positive",
-                  percentage: "56%",
-                  fillPercentage: 56.0,
-                  fillColor: CupertinoColors.activeGreen,
-                ),
-                SizedBox(height: 8),
-                CustomPercentage(
-                  title: "Negative",
-                  percentage: "20%",
-                  fillPercentage: 20.0,
-                  fillColor: CupertinoColors.destructiveRed
-                ),
-                SizedBox(height: 8),
-                CustomPercentage(
-                  title: "Neutral",
-                  percentage: "24%",
-                  fillPercentage: 24.0,
-                  fillColor: CupertinoColors.activeOrange,
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Overall Product Quality", style: TextStyle(fontSize: 20, color: white, fontWeight: FontWeight.bold)),
-                    Container(
-                      height: 100,
-                      width: 100,
-                      child: LiquidCircularProgressIndicator(
-                      value: 0.34, // Defaults to 0.5.
-                      valueColor: AlwaysStoppedAnimation(CupertinoColors.activeGreen), // Defaults to the current Theme's accentColor.
-                      backgroundColor: Colors.grey.shade300, // Defaults to the current Theme's backgroundColor.
-                      borderColor: white,
-                      borderWidth: 2.0,
-                      direction: Axis.vertical, // The direction the liquid moves (Axis.vertical = bottom to top, Axis.horizontal = left to right). Defaults to Axis.vertical.
-                      center: Text("34%", style: TextStyle(fontSize: 18, color: black, fontWeight: FontWeight.w500)),
-                    ),
-                    )
-                  ],
-                ),
-                SizedBox(height: 15),
-                // Spacer(),
-                 CustomButton(onTap: (){}, buttonText: "Check Quality"),
-                SizedBox(height: 10),
-                  CustomButton(onTap: (){}, buttonText: "Cancel", buttonColor: cardColor, textColor: white),
-                  SizedBox(height: 15,)
+              BlocBuilder<UrlResultsCubit, UrlResultsState>(
+                builder: (context, state) {
+                  if (state.isLoading) {
+                    return Center(child: Padding(
+                      padding: const EdgeInsets.only(top: 130),
+                      child: Text("Please wait...", style: TextStyle(color: lightGrayColor.withOpacity(0.8)),),
+                    ));
+                  } else if (state.error != null) {
+                    return Center(child: Text(state.error!, style: TextStyle(color: Colors.red)));
+                  } else {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Results",
+                          style: TextStyle(fontSize: 18, color: white, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 5),
+                        CustomPercentage(
+                          title: "Positive",
+                          percentage: "${state.positivePercentage.toStringAsFixed(2)}%",
+                          fillPercentage: state.positivePercentage,
+                          fillColor: green,
+                        ),
+                        CustomPercentage(
+                          title: "Negative",
+                          percentage: "${state.negativePercentage.toStringAsFixed(2)}%",
+                          fillPercentage: state.negativePercentage,
+                          fillColor: CupertinoColors.destructiveRed,
+                        ),
+                        CustomPercentage(
+                          title: "Neutral",
+                          percentage: "${state.neutralPercentage.toStringAsFixed(2)}%",
+                          fillPercentage: state.neutralPercentage,
+                          fillColor: CupertinoColors.activeOrange,
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Overall Product Quality",
+                              style: TextStyle(fontSize: 18, color: white, fontWeight: FontWeight.bold),
+                            ),
+                            Container(
+                              height: 90,
+                              width: 90,
+                              child: LiquidCircularProgressIndicator(
+                                value: state.positivePercentage / 100,
+                                valueColor: AlwaysStoppedAnimation(green),
+                                backgroundColor: Colors.transparent,
+                                borderColor: white.withOpacity(0.5),
+                                borderWidth: 2,
+                                direction: Axis.vertical,
+                                center: Text(
+                                  "${state.positivePercentage.toStringAsFixed(2)}%",
+                                  style: TextStyle(fontSize: 18, color: white, fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 25),
+                        ValueListenableBuilder(
+                          valueListenable: _urlController,
+                          builder: (context, _, __) {
+                            return CustomButton(
+                              onTap: () {
+                                closeKeyboard(context);
+                                context.read<UrlResultsCubit>().analyzeUrl(_urlController.text);
+                              },
+                              buttonText: "Check Quality",
+                              enabled: _urlController.text.isNotEmpty,
+                            );
+                          },
+                        ),
+                        SizedBox(height: 10),
+                        CustomButton(
+                          onTap: () {
+                            closeKeyboard(context);
+                            Navigator.pop(context);
+                          },
+                          buttonText: "Cancel",
+                          buttonColor: cardColor,
+                          textColor: white,
+                        ),
+                        SizedBox(height: 15),
+                      ],
+                    );
+                  }
+                },
+              ),
             ],
           ),
         ),
