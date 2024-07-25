@@ -5,6 +5,7 @@ import 'package:helpifly/bloc/app_bloc/app_state.dart';
 import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/helper/helper_functions.dart';
 import 'package:helpifly/models/item_model.dart';
+import 'package:helpifly/widgets/add_review_bottomsheet.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
 
 class SearchResultsScreen extends StatefulWidget {
@@ -61,6 +62,19 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
     setState(() {
       filteredSearchTextList.clear();
     });
+  }
+
+    void _showAddReviewBottomSheet(BuildContext context, ItemModel item) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
+      ),
+      builder: (BuildContext context) {
+        return AddReviewBottomSheet(item: item);
+      },
+    );
   }
 
   @override
@@ -179,52 +193,55 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                         itemCount: filteredItems.length,
                         itemBuilder: (context, index) {
                           ItemModel item = filteredItems[index];
-                          return Container(
-                            margin: EdgeInsets.only(bottom: 12),
-                            height: 100,
-                            width: MediaQuery.of(context).size.width,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: cardColor,
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  height: 70,
-                                  width: 70,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: NetworkImage(
-                                        'https://i.pinimg.com/280x280_RS/56/ee/fe/56eefe4d7953d6cd43089ef54766fc2d.jpg',
+                          return GestureDetector(
+                            onTap: () => _showAddReviewBottomSheet(context, item),
+                            child: Container(
+                              margin: EdgeInsets.only(bottom: 12),
+                              height: 100,
+                              width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: cardColor,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    height: 70,
+                                    width: 70,
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: NetworkImage(
+                                          'https://i.pinimg.com/280x280_RS/56/ee/fe/56eefe4d7953d6cd43089ef54766fc2d.jpg',
+                                        ),
+                                        fit: BoxFit.cover,
                                       ),
-                                      fit: BoxFit.cover,
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                ),
-                                SizedBox(width: 8),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.title,
-                                      style: TextStyle(
-                                        color: white,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w500,
+                                  SizedBox(width: 8),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.title,
+                                        style: TextStyle(
+                                          color: white,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      item.title2,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: white, fontSize: 14),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                      Text(
+                                        item.title2,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            color: white, fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },
