@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:helpifly/bloc/app_bloc/app_cubit.dart';
 import 'package:helpifly/bloc/app_bloc/app_state.dart';
 import 'package:helpifly/constants/colors.dart';
+import 'package:helpifly/helper/helper_functions.dart';
 import 'package:helpifly/models/item_model.dart';
 import 'package:helpifly/widgets/custom_button.dart';
 import 'package:helpifly/widgets/custom_textfield.dart';
@@ -17,6 +18,8 @@ class AddReviewBottomSheet extends StatefulWidget {
 
 class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
   final TextEditingController _reviewController = TextEditingController();
+  bool _isUpdating = false;
+  int? _updatingReviewIndex;
 
   @override
   void dispose() {
@@ -71,25 +74,42 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
             onTap: () {
               final reviewText = _reviewController.text.trim();
               if (reviewText.isEmpty) {
-                // Show an error message or indication if the review text is empty
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Review cannot be empty')),
                 );
                 return;
               }
-              BlocProvider.of<AppCubit>(context).addReview(
-                  itemId: widget.item.id, reviewText: reviewText);
+              if (_isUpdating && _updatingReviewIndex != null) {
+                BlocProvider.of<AppCubit>(context).updateReview(
+                  itemId: widget.item.id,
+                  reviewText: reviewText,
+                  reviewIndex: _updatingReviewIndex!,
+                );
+                setState(() {
+                  _isUpdating = false;
+                  _updatingReviewIndex = null;
+                });
+              } else {
+                BlocProvider.of<AppCubit>(context).addReview(
+                  itemId: widget.item.id,
+                  reviewText: reviewText,
+                );
+              }
               _reviewController.clear(); // Clear the text field after sending
+              closeKeyboard(context);
             },
-            buttonText: "Submit",
+            buttonText: _isUpdating ? "Update" : "Submit",
           ),
           SizedBox(height: 25),
           Row(
             children: [
-              Text("Your reviews", style: TextStyle(color: white, fontWeight: FontWeight.w500),),
+              Text(
+                "Your reviews",
+                style: TextStyle(color: white, fontWeight: FontWeight.w500),
+              ),
             ],
           ),
-           SizedBox(height: 10),
+          SizedBox(height: 10),
           Expanded(
             child: SingleChildScrollView(
               physics: BouncingScrollPhysics(),
@@ -104,21 +124,44 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
                           .where((e2) => e2.reviewedBy == uid)
                           .toList();
 
+                      userReviews = userReviews.reversed.toList(); // Show latest reviews on top
+
                       return ListView.builder(
+                        reverse: true, // Ensure latest reviews are on top
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
                         itemCount: userReviews.length,
                         itemBuilder: (context, index) {
-                          return Container(
-                            margin: EdgeInsets.only(bottom: 15),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 10),
-                            decoration: BoxDecoration(
-                                color: inCardColor,
-                                borderRadius: BorderRadius.circular(8)),
-                            child: Text(
-                              userReviews[index].reviewText,
-                              style: TextStyle(color: white),
+                          final review = userReviews[index];
+                          final isSelected = _isUpdating && _updatingReviewIndex == index;
+
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                if (isSelected) {
+                                  // Deselect if the same review is tapped again
+                                  _isUpdating = false;
+                                  _updatingReviewIndex = null;
+                                  _reviewController.clear();
+                                } else {
+                                  _reviewController.text = review.reviewText;
+                                  _isUpdating = true;
+                                  _updatingReviewIndex = index;
+                                }
+                              });
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(bottom: 15),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 10),
+                              decoration: BoxDecoration(
+                                color: isSelected ? Colors.blueGrey : inCardColor, // Change color if selected
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                review.reviewText,
+                                style: TextStyle(color: white),
+                              ),
                             ),
                           );
                         },

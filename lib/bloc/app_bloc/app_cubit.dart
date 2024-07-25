@@ -256,6 +256,67 @@ class AppCubit extends Cubit<AppState> {
   }
 }
 
+Future<void> updateReview({
+  required String itemId,
+  required String reviewText,
+  required int reviewIndex,
+}) async {
+  emit(state.copyWith(isLoading: true));
+  try {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      emit(state.copyWith(isLoading: false, error: 'User not logged in'));
+      return;
+    }
+
+    String uid = currentUser.uid;
+
+    // Fetch user information
+    DocumentSnapshot<Map<String, dynamic>> userDoc =
+        await _firestore.collection('users').doc(uid).get();
+    final userData = userDoc.data() ?? {};
+    String firstName = userData['firstName'] ?? 'Unknown';
+    String lastName = userData['lastName'] ?? 'Unknown';
+
+    // Create an updated Review object
+    Review updatedReview = Review(
+      reviewText: reviewText,
+      reviewedBy: uid,
+      firstName: firstName,
+      lastName: lastName,
+    );
+
+    // Fetch the item document
+    DocumentSnapshot<Map<String, dynamic>> itemDoc =
+        await _firestore.collection('items').doc(itemId).get();
+    final itemData = itemDoc.data();
+    if (itemData == null) {
+      emit(state.copyWith(isLoading: false, error: 'Item not found'));
+      return;
+    }
+
+    // Extract and update the reviews array
+    List<dynamic> reviews = itemData['reviews'] ?? [];
+    if (reviewIndex >= reviews.length) {
+      emit(state.copyWith(isLoading: false, error: 'Review index out of bounds'));
+      return;
+    }
+    reviews[reviewIndex] = updatedReview.toJson();
+
+    // Update the item document with the new reviews array
+    await _firestore.collection('items').doc(itemId).update({
+      'reviews': reviews,
+    });
+
+    // Emit a success state and refresh the items list
+    emit(state.copyWith(isLoading: false));
+    await _fetchItemsFromFirestore(); // Refresh the list of items to include updated reviews
+  } catch (e) {
+    emit(state.copyWith(isLoading: false, error: 'Failed to update review: $e'));
+  }
+}
+
+
 
 
 }
