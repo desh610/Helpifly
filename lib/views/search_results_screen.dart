@@ -35,15 +35,27 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
     });
   }
 
-void _onSuggestionTap(String suggestion) {
-  searchTextController.text = suggestion;
-  print('Selected suggestion: $suggestion'); // Debugging
-  BlocProvider.of<AppCubit>(context).setChipSelectedCategory(suggestion);
-  closeKeyboard(context);
-  searchTextController.clear();
-  _dismissSuggestions();
-}
+  void _onSuggestionTap(String suggestion) {
+    final allCategories = context.read<AppCubit>().state.categories;
+    if (allCategories.contains(suggestion)) {
+      searchTextController.text = suggestion;
+      BlocProvider.of<AppCubit>(context).setChipSelectedCategory(suggestion);
+      closeKeyboard(context);
+      searchTextController.clear();
+      _dismissSuggestions();
+    } else {
+      final allItems = context.read<AppCubit>().state.items;
+      String itemSuggestion =
+          allItems.firstWhere((e) => e.title == suggestion).category;
 
+      searchTextController.text = suggestion;
+      BlocProvider.of<AppCubit>(context)
+          .setChipSelectedCategory(itemSuggestion);
+      closeKeyboard(context);
+      searchTextController.clear();
+      _dismissSuggestions();
+    }
+  }
 
   void _dismissSuggestions() {
     setState(() {
@@ -133,12 +145,12 @@ void _onSuggestionTap(String suggestion) {
                       selectedTextColor: black,
                       unselectedTextColor: white,
                       onTap: (selectedItem) {
-                        BlocProvider.of<AppCubit>(context).setChipSelectedCategory(selectedItem);
+                        BlocProvider.of<AppCubit>(context)
+                            .setChipSelectedCategory(selectedItem);
                       },
                     );
                   },
                 ),
-
                 SizedBox(height: 15),
                 BlocBuilder<AppCubit, AppState>(
                   builder: (context, state) {
@@ -195,7 +207,8 @@ void _onSuggestionTap(String suggestion) {
                                   SizedBox(width: 8),
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         item.title,
@@ -208,7 +221,8 @@ void _onSuggestionTap(String suggestion) {
                                       Text(
                                         item.title2,
                                         textAlign: TextAlign.center,
-                                        style: TextStyle(color: white, fontSize: 14),
+                                        style: TextStyle(
+                                            color: white, fontSize: 14),
                                       ),
                                     ],
                                   ),

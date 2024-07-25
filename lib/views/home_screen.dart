@@ -35,6 +35,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onSuggestionTap(String suggestion) {
+     final allCategories = context.read<AppCubit>().state.categories;
+    if(allCategories.contains(suggestion)){
+
     print(suggestion);
     searchTextController.text = suggestion;
     setState(() {
@@ -49,7 +52,56 @@ class _HomeScreenState extends State<HomeScreen> {
     closeKeyboard(context);
     searchTextController.clear();
     _dismissSuggestions();
+
+    }else{
+      final allItems = context.read<AppCubit>().state.items;
+      String itemSuggestion = allItems.firstWhere((e) => e.title == suggestion).category;
+
+    searchTextController.text = suggestion;
+    setState(() {
+      filteredSearchTextList.clear();
+    });
+    BlocProvider.of<AppCubit>(context).setChipSelectedCategory(itemSuggestion);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SearchResultsScreen()),
+    );
+    // DO NOT CHANGE BELOW CLEARING ORDER
+    closeKeyboard(context);
+    searchTextController.clear();
+    _dismissSuggestions();
+    }
+    // print(suggestion);
+    // searchTextController.text = suggestion;
+    // setState(() {
+    //   filteredSearchTextList.clear();
+    // });
+    // BlocProvider.of<AppCubit>(context).setChipSelectedCategory(suggestion);
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => SearchResultsScreen()),
+    // );
+    // // DO NOT CHANGE BELOW CLEARING ORDER
+    // closeKeyboard(context);
+    // searchTextController.clear();
+    // _dismissSuggestions();
   }
+  // void _onSuggestionTap(String suggestion) {
+  //   print(suggestion);
+  //   searchTextController.text = suggestion;
+  //   setState(() {
+  //     filteredSearchTextList.clear();
+  //   });
+  //   BlocProvider.of<AppCubit>(context).setChipSelectedCategory(suggestion);
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => SearchResultsScreen()),
+  //   );
+  //   // DO NOT CHANGE BELOW CLEARING ORDER
+  //   closeKeyboard(context);
+  //   searchTextController.clear();
+  //   _dismissSuggestions();
+  // }
 
   void _dismissSuggestions() {
     setState(() {
