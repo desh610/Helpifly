@@ -302,42 +302,45 @@ class _HomeScreenState extends State<HomeScreen> {
                           physics: const BouncingScrollPhysics(),
                           itemCount: state.services.length,
                           itemBuilder: (context, index) {
-                            return Container(
-                              margin: const EdgeInsets.only(right: 12),
-                              width: 100,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                color: cardColor,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    height: 70,
-                                    width: 70,
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: NetworkImage(
-                                            'https://i.pinimg.com/280x280_RS/56/ee/fe/56eefe4d7953d6cd43089ef54766fc2d.jpg'),
-                                        fit: BoxFit.cover,
+                            return GestureDetector(
+                              onTap: () => _showAddReviewBottomSheet(context, state.services[index]),
+                              child: Container(
+                                margin: const EdgeInsets.only(right: 12),
+                                width: 100,
+                                height: 120,
+                                decoration: BoxDecoration(
+                                  color: cardColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      height: 70,
+                                      width: 70,
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                              'https://i.pinimg.com/280x280_RS/56/ee/fe/56eefe4d7953d6cd43089ef54766fc2d.jpg'),
+                                          fit: BoxFit.cover,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    state.services[index].title,
-                                    style: TextStyle(
-                                        color: white,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                  Text(
-                                    "Telecommunication Service Provider",
-                                    textAlign: TextAlign.center,
-                                    style:
-                                        TextStyle(color: white, fontSize: 10),
-                                  ),
-                                ],
+                                    SizedBox(height: 4),
+                                    Text(
+                                      state.services[index].title,
+                                      style: TextStyle(
+                                          color: white,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    Text(
+                                      "Telecommunication Service Provider",
+                                      textAlign: TextAlign.center,
+                                      style:
+                                          TextStyle(color: white, fontSize: 10),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           },
