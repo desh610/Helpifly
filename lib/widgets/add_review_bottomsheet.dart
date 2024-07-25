@@ -61,47 +61,75 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
               ),
             ],
           ),
-           SizedBox(height: 10),
-           Text("Your valuble review supports to rank this product or service and you can add maximum 3 reviews per item", style: TextStyle(color: grayColor, letterSpacing: 0.4, fontSize: 14),),
-           SizedBox(height: 15),
-          CustomTextField(
-            controller: _reviewController,
-            hintText: "Enter review here",
-            overlineText: "Review",
-            minLines: 3,
-            maxLines: 3,
-            backgroundColor: inCardColor,
-          ),
           SizedBox(height: 10),
-          CustomButton(
-            onTap: () {
-              final reviewText = _reviewController.text.trim();
-              if (reviewText.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Review cannot be empty')),
-                );
-                return;
-              }
-              if (_isUpdating && _updatingReviewIndex != null) {
-                BlocProvider.of<AppCubit>(context).updateReview(
-                  itemId: widget.item.id,
-                  reviewText: reviewText,
-                  reviewIndex: _updatingReviewIndex!,
-                );
-                setState(() {
-                  _isUpdating = false;
-                  _updatingReviewIndex = null;
-                });
-              } else {
-                BlocProvider.of<AppCubit>(context).addReview(
-                  itemId: widget.item.id,
-                  reviewText: reviewText,
-                );
-              }
-              _reviewController.clear(); // Clear the text field after sending
-              closeKeyboard(context);
+          Text(
+            "Your valuable review supports ranking this product or service. You can add a maximum of 3 reviews per item.",
+            style: TextStyle(color: grayColor, letterSpacing: 0.4, fontSize: 14),
+          ),
+          SizedBox(height: 15),
+          BlocBuilder<AppCubit, AppState>(
+            builder: (context, state) {
+              String uid = state.userInfo.uid;
+              List<Review> userReviews = state.items
+                  .firstWhere((e) => e.id == widget.item.id)
+                  .reviews
+                  .where((e2) => e2.reviewedBy == uid)
+                  .toList();
+
+              bool canAddReview = userReviews.length < 3;
+
+              return Column(
+                children: [
+                  CustomTextField(
+                    controller: _reviewController,
+                    hintText: "Enter review here",
+                    overlineText: "Review",
+                    minLines: 3,
+                    maxLines: 3,
+                    backgroundColor: inCardColor,
+                    enabled: true, // Always enable text field
+                  ),
+                  SizedBox(height: 10),
+                  CustomButton(
+                    onTap: () {
+                      final reviewText = _reviewController.text.trim();
+                      if (reviewText.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Review cannot be empty')),
+                        );
+                        return;
+                      }
+                      if (_isUpdating && _updatingReviewIndex != null) {
+                        BlocProvider.of<AppCubit>(context).updateReview(
+                          itemId: widget.item.id,
+                          reviewText: reviewText,
+                          reviewIndex: _updatingReviewIndex!,
+                        );
+                        setState(() {
+                          _isUpdating = false;
+                          _updatingReviewIndex = null;
+                        });
+                      } else {
+                        if (canAddReview) {
+                          BlocProvider.of<AppCubit>(context).addReview(
+                            itemId: widget.item.id,
+                            reviewText: reviewText,
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Maximum reviews reached')),
+                          );
+                        }
+                      }
+                      _reviewController.clear(); // Clear the text field after sending
+                      closeKeyboard(context);
+                    },
+                    buttonText: _isUpdating ? "Update" : "Submit",
+                    enabled: canAddReview || _isUpdating, // Enable button based on condition
+                  ),
+                ],
+              );
             },
-            buttonText: _isUpdating ? "Update" : "Submit",
           ),
           SizedBox(height: 25),
           Row(

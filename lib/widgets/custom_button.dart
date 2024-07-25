@@ -12,6 +12,7 @@ class CustomButton extends StatelessWidget {
   final IconData? leadingIcon;
   final Color? iconColor;
   final double? iconSize;
+  final bool enabled; // Added enabled property
 
   const CustomButton({
     Key? key,
@@ -23,18 +24,19 @@ class CustomButton extends StatelessWidget {
     this.leadingIcon,
     this.iconColor,
     this.iconSize,
+    this.enabled = true, // Default to true
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: enabled ? onTap : null, // Enable or disable the onTap callback
       child: Container(
         height: buttonType == ButtonType.Medium ? 48 : 32,
         width: buttonType == ButtonType.Medium ? MediaQuery.of(context).size.width : null,
         padding: buttonType == ButtonType.Small ? EdgeInsets.symmetric(horizontal: 12) : null,
         decoration: BoxDecoration(
-          color: buttonColor,
+          color: enabled ? buttonColor : Colors.grey, // Change color if disabled
           borderRadius: BorderRadius.circular(buttonType == ButtonType.Medium ? 8 : 6),
         ),
         child: Center(
@@ -52,7 +54,7 @@ class CustomButton extends StatelessWidget {
               Text(
                 buttonText,
                 style: TextStyle(
-                  color: textColor,
+                  color: enabled ? textColor : Colors.black.withOpacity(0.5), // Change text color if disabled
                   fontSize: buttonType == ButtonType.Medium ? 16 : 14,
                   fontWeight: FontWeight.bold,
                 ),
