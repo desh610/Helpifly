@@ -11,6 +11,7 @@ class CustomTextField extends StatelessWidget {
   final int? maxLines;
   final int minLines;
   final Color backgroundColor;
+  final bool enabled; // Added enabled property
 
   const CustomTextField({
     Key? key,
@@ -23,6 +24,7 @@ class CustomTextField extends StatelessWidget {
     this.maxLines = 1, 
     this.minLines = 1, 
     this.backgroundColor = cardColor,
+    this.enabled = true, // Default to true
   }) : super(key: key);
 
   @override
@@ -39,7 +41,6 @@ class CustomTextField extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         SizedBox(
-          // height: 48,
           child: Container(
             decoration: BoxDecoration(
               color: backgroundColor,
@@ -62,6 +63,7 @@ class CustomTextField extends StatelessWidget {
               textAlignVertical: TextAlignVertical.center,
               cursorColor: white,
               style: const TextStyle(color: white),
+              enabled: enabled, // Use enabled property here
             ),
           ),
         ),

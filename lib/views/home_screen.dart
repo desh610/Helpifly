@@ -4,7 +4,9 @@ import 'package:helpifly/bloc/app_bloc/app_cubit.dart';
 import 'package:helpifly/bloc/app_bloc/app_state.dart';
 import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/helper/helper_functions.dart';
+import 'package:helpifly/models/item_model.dart';
 import 'package:helpifly/views/search_results_screen.dart';
+import 'package:helpifly/widgets/add_review_bottomsheet.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,29 +18,32 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController searchTextController = TextEditingController();
-  List<String> filteredCategories = [];
+  List<String> filteredSearchTextList = [];
 
   @override
   void initState() {
     super.initState();
-    searchTextController.addListener(_filterCategories);
+    searchTextController.addListener(_filterSearchText);
   }
 
-  void _filterCategories() {
+  void _filterSearchText() {
     final query = searchTextController.text.toLowerCase();
-    final allCategories = context.read<AppCubit>().state.categories;
+    final allSearchTextList = context.read<AppCubit>().state.searchTextList;
     setState(() {
-      filteredCategories = allCategories
-          .where((category) => category.toLowerCase().contains(query))
+      filteredSearchTextList = allSearchTextList
+          .where((i) => i.toLowerCase().contains(query))
           .toList();
     });
   }
 
   void _onSuggestionTap(String suggestion) {
+     final allCategories = context.read<AppCubit>().state.categories;
+    if(allCategories.contains(suggestion)){
+
     print(suggestion);
     searchTextController.text = suggestion;
     setState(() {
-      filteredCategories.clear();
+      filteredSearchTextList.clear();
     });
     BlocProvider.of<AppCubit>(context).setChipSelectedCategory(suggestion);
     Navigator.push(
@@ -49,12 +54,46 @@ class _HomeScreenState extends State<HomeScreen> {
     closeKeyboard(context);
     searchTextController.clear();
     _dismissSuggestions();
+
+    }else{
+      final allItems = context.read<AppCubit>().state.items;
+      String itemSuggestion = allItems.firstWhere((e) => e.title == suggestion).category;
+
+    searchTextController.text = suggestion;
+    setState(() {
+      filteredSearchTextList.clear();
+    });
+    BlocProvider.of<AppCubit>(context).setChipSelectedCategory(itemSuggestion);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SearchResultsScreen()),
+    );
+    // DO NOT CHANGE BELOW CLEARING ORDER
+    closeKeyboard(context);
+    searchTextController.clear();
+    _dismissSuggestions();
+    }
+    
   }
+ 
 
   void _dismissSuggestions() {
     setState(() {
-      filteredCategories.clear();
+      filteredSearchTextList.clear();
     });
+  }
+
+  void _showAddReviewBottomSheet(BuildContext context, ItemModel item) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
+      ),
+      builder: (BuildContext context) {
+        return AddReviewBottomSheet(item: item);
+      },
+    );
   }
 
   @override
@@ -116,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
                        
                       },
                     ),
-                    if (filteredCategories.isNotEmpty)
+                    if (filteredSearchTextList.isNotEmpty)
                       Container(
                         height: 300,
                         decoration: BoxDecoration(
@@ -126,9 +165,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Scrollbar(
                           child: ListView.builder(
                             physics: const BouncingScrollPhysics(),
-                            itemCount: filteredCategories.length,
+                            itemCount: filteredSearchTextList.length,
                             itemBuilder: (context, index) {
-                              final suggestion = filteredCategories[index];
+                              final suggestion = filteredSearchTextList[index];
                               return ListTile(
                                 title: Text(
                                   suggestion,
@@ -190,42 +229,45 @@ class _HomeScreenState extends State<HomeScreen> {
                           physics: const BouncingScrollPhysics(),
                           itemCount: state.products.length,
                           itemBuilder: (context, index) {
-                            return Container(
-                              margin: const EdgeInsets.only(right: 12),
-                              width: 100,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                color: cardColor,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    height: 70,
-                                    width: 70,
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: NetworkImage(
-                                            'https://i.pinimg.com/280x280_RS/56/ee/fe/56eefe4d7953d6cd43089ef54766fc2d.jpg'),
-                                        fit: BoxFit.cover,
+                            return GestureDetector(
+                              onTap: () => _showAddReviewBottomSheet(context, state.products[index]),
+                              child: Container(
+                                margin: const EdgeInsets.only(right: 12),
+                                width: 100,
+                                height: 120,
+                                decoration: BoxDecoration(
+                                  color: cardColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      height: 70,
+                                      width: 70,
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                              'https://i.pinimg.com/280x280_RS/56/ee/fe/56eefe4d7953d6cd43089ef54766fc2d.jpg'),
+                                          fit: BoxFit.cover,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    state.products[index].title,
-                                    style: TextStyle(
-                                        color: white,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                  Text(
-                                    state.products[index].title2,
-                                    textAlign: TextAlign.center,
-                                    style:
-                                        TextStyle(color: white, fontSize: 10),
-                                  ),
-                                ],
+                                    SizedBox(height: 4),
+                                    Text(
+                                      state.products[index].title,
+                                      style: TextStyle(
+                                          color: white,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    Text(
+                                      state.products[index].title2,
+                                      textAlign: TextAlign.center,
+                                      style:
+                                          TextStyle(color: white, fontSize: 10),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           },

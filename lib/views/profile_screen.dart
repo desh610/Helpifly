@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:helpifly/bloc/app_bloc/app_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
 import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/views/login_screen.dart'; // Import LoginScreen for navigation
@@ -24,6 +26,7 @@ class ProfileScreen extends StatelessWidget {
         context,
         MaterialPageRoute(builder: (context) => LoginScreen()),
       );
+      context.read<AppCubit>().setCurrentTabIndex(0);
     } catch (e) {
       // Handle any errors during logout
       ScaffoldMessenger.of(context).showSnackBar(
