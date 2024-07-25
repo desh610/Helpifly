@@ -77,179 +77,176 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: primaryColor,
         body: Padding(
           padding: const EdgeInsets.only(left: 15.0, right: 15, top: 35.0),
-          child: SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: white),
-                ),
-                SizedBox(height: 5),
-                BlocBuilder<AppCubit, AppState>(
-                  builder: (context, state) {
-                    return Text(
-                      "Search results for\n${state.chipSelectedCategory}",
-                      style: TextStyle(
-                        color: white,
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: 15),
-                CustomSearchBar(
-                  controller: searchTextController,
-                  onChanged: (text) {},
-                ),
-                SizedBox(height: 15),
-                if (filteredSearchTextList.isNotEmpty)
-                  Container(
-                    height: 300,
-                    decoration: BoxDecoration(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Icon(Icons.arrow_back_ios_new_rounded, color: white),
+              ),
+              SizedBox(height: 5),
+              BlocBuilder<AppCubit, AppState>(
+                builder: (context, state) {
+                  return Text(
+                    "Search results for\n${state.chipSelectedCategory}",
+                    style: TextStyle(
                       color: white,
-                      borderRadius: BorderRadius.circular(8),
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
                     ),
-                    child: Scrollbar(
+                  );
+                },
+              ),
+              SizedBox(height: 15),
+              CustomSearchBar(
+                controller: searchTextController,
+                onChanged: (text) {},
+              ),
+              SizedBox(height: 15),
+              if (filteredSearchTextList.isNotEmpty)
+                Container(
+                  height: 300,
+                  decoration: BoxDecoration(
+                    color: white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Scrollbar(
+                    child: ListView.builder(
+                      physics: BouncingScrollPhysics(),
+                      itemCount: filteredSearchTextList.length,
+                      itemBuilder: (context, index) {
+                        final suggestion = filteredSearchTextList[index];
+                        return ListTile(
+                          title: Text(
+                            suggestion,
+                            style: TextStyle(color: black),
+                          ),
+                          onTap: () => _onSuggestionTap(suggestion),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              SizedBox(height: 15),
+              BlocBuilder<AppCubit, AppState>(
+                builder: (context, state) {
+                  return ChipContainer(
+                    items: state.categories.take(5).toList(),
+                    selectedItem: state.chipSelectedCategory,
+                    selectedColor: secondaryColor,
+                    unselectedColor: cardColor,
+                    selectedTextColor: black,
+                    unselectedTextColor: white,
+                    onTap: (selectedItem) {
+                      BlocProvider.of<AppCubit>(context)
+                          .setChipSelectedCategory(selectedItem);
+                    },
+                  );
+                },
+              ),
+              SizedBox(height: 15),
+              BlocBuilder<AppCubit, AppState>(
+                builder: (context, state) {
+                  return Text(
+                    "Top ${state.chipSelectedCategory}",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: 6),
+              BlocBuilder<AppCubit, AppState>(
+                builder: (context, state) {
+                  List<ItemModel> filteredItems = state.items
+                      .where((e) => e.category == state.chipSelectedCategory)
+                      .toList()
+                    ..sort((a, b) => b.credit
+                        .compareTo(a.credit)); // Sort by credit, descending
+
+                  if (filteredItems.isNotEmpty) {
+                    return Expanded(
                       child: ListView.builder(
                         physics: BouncingScrollPhysics(),
-                        itemCount: filteredSearchTextList.length,
+                        itemCount: filteredItems.length,
                         itemBuilder: (context, index) {
-                          final suggestion = filteredSearchTextList[index];
-                          return ListTile(
-                            title: Text(
-                              suggestion,
-                              style: TextStyle(color: black),
+                          ItemModel item = filteredItems[index];
+                          return Container(
+                            margin: EdgeInsets.only(bottom: 12),
+                            height: 100,
+                            width: MediaQuery.of(context).size.width,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: cardColor,
                             ),
-                            onTap: () => _onSuggestionTap(suggestion),
+                            child: Row(
+                              children: [
+                                Container(
+                                  height: 70,
+                                  width: 70,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: NetworkImage(
+                                        'https://i.pinimg.com/280x280_RS/56/ee/fe/56eefe4d7953d6cd43089ef54766fc2d.jpg',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.title,
+                                      style: TextStyle(
+                                        color: white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      item.title2,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: white, fontSize: 14),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           );
                         },
                       ),
-                    ),
-                  ),
-                SizedBox(height: 15),
-                BlocBuilder<AppCubit, AppState>(
-                  builder: (context, state) {
-                    return ChipContainer(
-                      items: state.categories.take(5).toList(),
-                      selectedItem: state.chipSelectedCategory,
-                      selectedColor: secondaryColor,
-                      unselectedColor: cardColor,
-                      selectedTextColor: black,
-                      unselectedTextColor: white,
-                      onTap: (selectedItem) {
-                        BlocProvider.of<AppCubit>(context)
-                            .setChipSelectedCategory(selectedItem);
-                      },
                     );
-                  },
-                ),
-                SizedBox(height: 15),
-                BlocBuilder<AppCubit, AppState>(
-                  builder: (context, state) {
-                    return Text(
-                      "Top ${state.chipSelectedCategory}",
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: 6),
-                BlocBuilder<AppCubit, AppState>(
-                  builder: (context, state) {
-                    List<ItemModel> filteredItems = state.items
-                        .where((e) => e.category == state.chipSelectedCategory)
-                        .toList()
-                      ..sort((a, b) => b.credit
-                          .compareTo(a.credit)); // Sort by credit, descending
-
-                    if (filteredItems.isNotEmpty) {
-                      return SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.5,
-                        child: ListView.builder(
-                          physics: BouncingScrollPhysics(),
-                          itemCount: filteredItems.length,
-                          itemBuilder: (context, index) {
-                            ItemModel item = filteredItems[index];
-                            return Container(
-                              margin: EdgeInsets.only(bottom: 12),
-                              height: 100,
-                              width: MediaQuery.of(context).size.width,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: cardColor,
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    height: 70,
-                                    width: 70,
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: NetworkImage(
-                                          'https://i.pinimg.com/280x280_RS/56/ee/fe/56eefe4d7953d6cd43089ef54766fc2d.jpg',
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item.title,
-                                        style: TextStyle(
-                                          color: white,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      Text(
-                                        item.title2,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            color: white, fontSize: 14),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    } else {
-                      return Center(
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 140),
-                          child: Text(
-                            "No available results",
-                            style: TextStyle(
-                              color: lightGrayColor.withOpacity(0.8),
-                              letterSpacing: 1,
-                            ),
+                  } else {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 140),
+                        child: Text(
+                          "No available results",
+                          style: TextStyle(
+                            color: lightGrayColor.withOpacity(0.8),
+                            letterSpacing: 1,
                           ),
                         ),
-                      );
-                    }
-                  },
-                ),
-              ],
-            ),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
           ),
         ),
         bottomNavigationBar: BlocBuilder<AppCubit, AppState>(
