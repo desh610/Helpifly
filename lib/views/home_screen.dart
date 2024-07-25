@@ -4,6 +4,7 @@ import 'package:helpifly/bloc/app_bloc/app_cubit.dart';
 import 'package:helpifly/bloc/app_bloc/app_state.dart';
 import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/helper/helper_functions.dart';
+import 'package:helpifly/models/item_model.dart';
 import 'package:helpifly/views/search_results_screen.dart';
 import 'package:helpifly/widgets/add_review_bottomsheet.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
@@ -82,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _showAddReviewBottomSheet(BuildContext context) {
+  void _showAddReviewBottomSheet(BuildContext context, ItemModel item) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -90,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
       ),
       builder: (BuildContext context) {
-        return AddReviewBottomSheet();
+        return AddReviewBottomSheet(item: item);
       },
     );
   }
@@ -229,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           itemCount: state.products.length,
                           itemBuilder: (context, index) {
                             return GestureDetector(
-                              onTap: () => _showAddReviewBottomSheet(context),
+                              onTap: () => _showAddReviewBottomSheet(context, state.products[index]),
                               child: Container(
                                 margin: const EdgeInsets.only(right: 12),
                                 width: 100,

@@ -213,4 +213,49 @@ class AppCubit extends Cubit<AppState> {
       emit(state.copyWith(isLoading: false, error: 'Failed to update search text list: $e'));
     }
   }
+
+ Future<void> addReview({
+  required String itemId,
+  required String reviewText,
+}) async {
+  emit(state.copyWith(isLoading: true));
+  try {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      emit(state.copyWith(isLoading: false, error: 'User not logged in'));
+      return;
+    }
+
+    String uid = currentUser.uid;
+
+    // Fetch user information
+    DocumentSnapshot<Map<String, dynamic>> userDoc =
+        await _firestore.collection('users').doc(uid).get();
+    final userData = userDoc.data() ?? {};
+    String firstName = userData['firstName'] ?? 'Unknown';
+    String lastName = userData['lastName'] ?? 'Unknown';
+
+    // Create a new Review object
+    Review newReview = Review(
+      reviewText: reviewText,
+      reviewedBy: uid,
+      firstName: firstName,
+      lastName: lastName,
+    );
+
+    // Update the reviews field of the specified item
+    await _firestore.collection('items').doc(itemId).update({
+      'reviews': FieldValue.arrayUnion([newReview.toJson()]),
+    });
+
+    // Emit a success state and refresh the items list
+    emit(state.copyWith(isLoading: false));
+    await _fetchItemsFromFirestore(); // Refresh the list of items to include new reviews
+  } catch (e) {
+    emit(state.copyWith(isLoading: false, error: 'Failed to add review: $e'));
+  }
+}
+
+
+
 }

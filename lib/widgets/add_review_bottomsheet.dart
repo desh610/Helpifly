@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:helpifly/bloc/forum_bloc/forum_cubit.dart';
+import 'package:helpifly/bloc/app_bloc/app_cubit.dart';
+import 'package:helpifly/bloc/app_bloc/app_state.dart';
 import 'package:helpifly/constants/colors.dart';
+import 'package:helpifly/models/item_model.dart';
 import 'package:helpifly/widgets/custom_button.dart';
 import 'package:helpifly/widgets/custom_textfield.dart';
 
 class AddReviewBottomSheet extends StatefulWidget {
-  const AddReviewBottomSheet({super.key});
+  final ItemModel item;
+  const AddReviewBottomSheet({super.key, required this.item});
 
   @override
   _AddReviewBottomSheetState createState() => _AddReviewBottomSheetState();
@@ -36,10 +39,11 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
                 onTap: () {
                   Navigator.of(context).pop();
                 },
-                child: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.transparent, size: 20),
+                child: Icon(Icons.arrow_back_ios_new_rounded,
+                    color: Colors.transparent, size: 20),
               ),
               Text(
-                "Add review for this itms",
+                "Add review for ${widget.item.title}",
                 style: TextStyle(
                   fontSize: 16,
                   color: white,
@@ -54,35 +58,74 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
               ),
             ],
           ),
+          CustomTextField(
+            controller: _reviewController,
+            hintText: "Enter review here",
+            overlineText: "Review",
+            minLines: 5,
+            maxLines: 5,
+            backgroundColor: inCardColor,
+          ),
           SizedBox(height: 10),
+          CustomButton(
+            onTap: () {
+              final reviewText = _reviewController.text.trim();
+              if (reviewText.isEmpty) {
+                // Show an error message or indication if the review text is empty
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Review cannot be empty')),
+                );
+                return;
+              }
+              BlocProvider.of<AppCubit>(context).addReview(
+                  itemId: widget.item.id, reviewText: reviewText);
+              _reviewController.clear(); // Clear the text field after sending
+            },
+            buttonText: "Submit",
+          ),
+          SizedBox(height: 25),
+          Row(
+            children: [
+              Text("Your reviews", style: TextStyle(color: white, fontWeight: FontWeight.w500),),
+            ],
+          ),
+           SizedBox(height: 10),
           Expanded(
             child: SingleChildScrollView(
               physics: BouncingScrollPhysics(),
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
               child: Column(
                 children: [
-                  CustomTextField(
-                    controller: _reviewController,
-                    hintText: "Enter review here",
-                    overlineText: "Review",
-                    minLines: 5,
-                    maxLines: 5,
-                    backgroundColor: inCardColor,
-                  ),
-                  SizedBox(height: 40),
-                  CustomButton(
-                    onTap: () {
-                      // context.read<ForumCubit>().createPost(
-                      //   title: _titleController.text,
-                      //   description: _descriptionController.text,
-                      // );
-                      // Navigator.of(context).pop(); // Close the bottom sheet after publishing
+                  BlocBuilder<AppCubit, AppState>(
+                    builder: (context, state) {
+                      String uid = state.userInfo.uid;
+                      List<Review> userReviews = state.items
+                          .firstWhere((e) => e.id == widget.item.id)
+                          .reviews
+                          .where((e2) => e2.reviewedBy == uid)
+                          .toList();
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: userReviews.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: EdgeInsets.only(bottom: 15),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 10),
+                            decoration: BoxDecoration(
+                                color: inCardColor,
+                                borderRadius: BorderRadius.circular(8)),
+                            child: Text(
+                              userReviews[index].reviewText,
+                              style: TextStyle(color: white),
+                            ),
+                          );
+                        },
+                      );
                     },
-                    buttonText: "Submit",
                   ),
-                  SizedBox(height: 15),
+                  SizedBox(height: 10),
                 ],
               ),
             ),
