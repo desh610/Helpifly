@@ -5,6 +5,7 @@ import 'package:helpifly/bloc/app_bloc/app_state.dart';
 import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/helper/helper_functions.dart';
 import 'package:helpifly/views/search_results_screen.dart';
+import 'package:helpifly/widgets/add_review_bottomsheet.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -71,42 +72,27 @@ class _HomeScreenState extends State<HomeScreen> {
     searchTextController.clear();
     _dismissSuggestions();
     }
-    // print(suggestion);
-    // searchTextController.text = suggestion;
-    // setState(() {
-    //   filteredSearchTextList.clear();
-    // });
-    // BlocProvider.of<AppCubit>(context).setChipSelectedCategory(suggestion);
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => SearchResultsScreen()),
-    // );
-    // // DO NOT CHANGE BELOW CLEARING ORDER
-    // closeKeyboard(context);
-    // searchTextController.clear();
-    // _dismissSuggestions();
+    
   }
-  // void _onSuggestionTap(String suggestion) {
-  //   print(suggestion);
-  //   searchTextController.text = suggestion;
-  //   setState(() {
-  //     filteredSearchTextList.clear();
-  //   });
-  //   BlocProvider.of<AppCubit>(context).setChipSelectedCategory(suggestion);
-  //   Navigator.push(
-  //     context,
-  //     MaterialPageRoute(builder: (context) => SearchResultsScreen()),
-  //   );
-  //   // DO NOT CHANGE BELOW CLEARING ORDER
-  //   closeKeyboard(context);
-  //   searchTextController.clear();
-  //   _dismissSuggestions();
-  // }
+ 
 
   void _dismissSuggestions() {
     setState(() {
       filteredSearchTextList.clear();
     });
+  }
+
+  void _showAddReviewBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
+      ),
+      builder: (BuildContext context) {
+        return AddReviewBottomSheet();
+      },
+    );
   }
 
   @override
@@ -242,42 +228,45 @@ class _HomeScreenState extends State<HomeScreen> {
                           physics: const BouncingScrollPhysics(),
                           itemCount: state.products.length,
                           itemBuilder: (context, index) {
-                            return Container(
-                              margin: const EdgeInsets.only(right: 12),
-                              width: 100,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                color: cardColor,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    height: 70,
-                                    width: 70,
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: NetworkImage(
-                                            'https://i.pinimg.com/280x280_RS/56/ee/fe/56eefe4d7953d6cd43089ef54766fc2d.jpg'),
-                                        fit: BoxFit.cover,
+                            return GestureDetector(
+                              onTap: () => _showAddReviewBottomSheet(context),
+                              child: Container(
+                                margin: const EdgeInsets.only(right: 12),
+                                width: 100,
+                                height: 120,
+                                decoration: BoxDecoration(
+                                  color: cardColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      height: 70,
+                                      width: 70,
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                              'https://i.pinimg.com/280x280_RS/56/ee/fe/56eefe4d7953d6cd43089ef54766fc2d.jpg'),
+                                          fit: BoxFit.cover,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    state.products[index].title,
-                                    style: TextStyle(
-                                        color: white,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                  Text(
-                                    state.products[index].title2,
-                                    textAlign: TextAlign.center,
-                                    style:
-                                        TextStyle(color: white, fontSize: 10),
-                                  ),
-                                ],
+                                    SizedBox(height: 4),
+                                    Text(
+                                      state.products[index].title,
+                                      style: TextStyle(
+                                          color: white,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    Text(
+                                      state.products[index].title2,
+                                      textAlign: TextAlign.center,
+                                      style:
+                                          TextStyle(color: white, fontSize: 10),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           },
