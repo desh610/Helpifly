@@ -13,6 +13,7 @@ class AppCubit extends Cubit<AppState> {
   AppCubit()
       : super(AppState(
             categories: [],
+            searchTextList: [],
             items: [],
             products: [],
             services: [],
@@ -22,15 +23,16 @@ class AppCubit extends Cubit<AppState> {
     _loadCategories();
     _loadItems();
     _loadUserInfo();
+    _loadSearchTextList(); // Load search text list during initialization
   }
 
   void setCurrentTabIndex(int currentTabIndex) {
     emit(state.copyWith(currentTabIndex: currentTabIndex));
   }
- void setChipSelectedCategory(String chipSelectedCategory) {
-  emit(state.copyWith(chipSelectedCategory: chipSelectedCategory));
-}
 
+  void setChipSelectedCategory(String chipSelectedCategory) {
+    emit(state.copyWith(chipSelectedCategory: chipSelectedCategory));
+  }
 
   Future<void> _loadCategories() async {
     emit(state.copyWith(isLoading: true));
@@ -119,6 +121,10 @@ class AppCubit extends Cubit<AppState> {
           products: products,
           services: services,
           isLoading: false));
+
+      // Update search text list after fetching items
+      _updateSearchTextList();
+
     } catch (e) {
       emit(state.copyWith(
           isLoading: false, error: 'Failed to fetch items from Firestore: $e'));
@@ -168,6 +174,43 @@ class AppCubit extends Cubit<AppState> {
       }
     } catch (e) {
       emit(state.copyWith(error: 'Failed to fetch user info from Firestore: $e'));
+    }
+  }
+
+  Future<void> _loadSearchTextList() async {
+    emit(state.copyWith(isLoading: true));
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cachedSearchTextList = prefs.getString('searchTextList');
+
+      if (cachedSearchTextList != null) {
+        List<dynamic> cachedList = jsonDecode(cachedSearchTextList);
+        List<String> searchTextList = List<String>.from(cachedList);
+        emit(state.copyWith(searchTextList: searchTextList, isLoading: false));
+      } else {
+        _updateSearchTextList();
+      }
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: 'Failed to load search text list: $e'));
+    }
+  }
+
+  Future<void> _updateSearchTextList() async {
+    try {
+      // Combine categories and item titles
+      List<String> searchTextList = [
+        ...state.categories,
+        ...state.items.map((item) => item.title)
+      ];
+
+      // Cache search text list
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('searchTextList', jsonEncode(searchTextList));
+
+      // Emit the updated state
+      emit(state.copyWith(searchTextList: searchTextList, isLoading: false));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: 'Failed to update search text list: $e'));
     }
   }
 }

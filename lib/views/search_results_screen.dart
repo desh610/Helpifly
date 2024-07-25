@@ -17,20 +17,20 @@ class SearchResultsScreen extends StatefulWidget {
 class _SearchResultsScreenState extends State<SearchResultsScreen> {
   final TextEditingController searchTextController = TextEditingController();
 
-  List<String> filteredCategories = [];
+  List<String> filteredSearchTextList = [];
 
   @override
   void initState() {
     super.initState();
-    searchTextController.addListener(_filterCategories);
+    searchTextController.addListener(_filterSearchText);
   }
 
-  void _filterCategories() {
+  void _filterSearchText() {
     final query = searchTextController.text.toLowerCase();
-    final allCategories = context.read<AppCubit>().state.categories;
+    final allSearchTextList = context.read<AppCubit>().state.searchTextList;
     setState(() {
-      filteredCategories = allCategories
-          .where((category) => category.toLowerCase().contains(query))
+      filteredSearchTextList = allSearchTextList
+          .where((i) => i.toLowerCase().contains(query))
           .toList();
     });
   }
@@ -47,7 +47,7 @@ void _onSuggestionTap(String suggestion) {
 
   void _dismissSuggestions() {
     setState(() {
-      filteredCategories.clear();
+      filteredSearchTextList.clear();
     });
   }
 
@@ -98,7 +98,7 @@ void _onSuggestionTap(String suggestion) {
                   onChanged: (text) {},
                 ),
                 SizedBox(height: 15),
-                if (filteredCategories.isNotEmpty)
+                if (filteredSearchTextList.isNotEmpty)
                   Container(
                     height: 300,
                     decoration: BoxDecoration(
@@ -108,9 +108,9 @@ void _onSuggestionTap(String suggestion) {
                     child: Scrollbar(
                       child: ListView.builder(
                         physics: BouncingScrollPhysics(),
-                        itemCount: filteredCategories.length,
+                        itemCount: filteredSearchTextList.length,
                         itemBuilder: (context, index) {
-                          final suggestion = filteredCategories[index];
+                          final suggestion = filteredSearchTextList[index];
                           return ListTile(
                             title: Text(
                               suggestion,
@@ -124,20 +124,20 @@ void _onSuggestionTap(String suggestion) {
                   ),
                 SizedBox(height: 15),
                 BlocBuilder<AppCubit, AppState>(
-  builder: (context, state) {
-    return ChipContainer(
-      items: state.categories.take(5).toList(),
-      selectedItem: state.chipSelectedCategory,
-      selectedColor: secondaryColor,
-      unselectedColor: cardColor,
-      selectedTextColor: black,
-      unselectedTextColor: white,
-      onTap: (selectedItem) {
-        BlocProvider.of<AppCubit>(context).setChipSelectedCategory(selectedItem);
-      },
-    );
-  },
-),
+                  builder: (context, state) {
+                    return ChipContainer(
+                      items: state.categories.take(5).toList(),
+                      selectedItem: state.chipSelectedCategory,
+                      selectedColor: secondaryColor,
+                      unselectedColor: cardColor,
+                      selectedTextColor: black,
+                      unselectedTextColor: white,
+                      onTap: (selectedItem) {
+                        BlocProvider.of<AppCubit>(context).setChipSelectedCategory(selectedItem);
+                      },
+                    );
+                  },
+                ),
 
                 SizedBox(height: 15),
                 BlocBuilder<AppCubit, AppState>(

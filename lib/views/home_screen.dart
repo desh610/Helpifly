@@ -16,20 +16,20 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController searchTextController = TextEditingController();
-  List<String> filteredCategories = [];
+  List<String> filteredSearchTextList = [];
 
   @override
   void initState() {
     super.initState();
-    searchTextController.addListener(_filterCategories);
+    searchTextController.addListener(_filterSearchText);
   }
 
-  void _filterCategories() {
+  void _filterSearchText() {
     final query = searchTextController.text.toLowerCase();
-    final allCategories = context.read<AppCubit>().state.categories;
+    final allSearchTextList = context.read<AppCubit>().state.searchTextList;
     setState(() {
-      filteredCategories = allCategories
-          .where((category) => category.toLowerCase().contains(query))
+      filteredSearchTextList = allSearchTextList
+          .where((i) => i.toLowerCase().contains(query))
           .toList();
     });
   }
@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
     print(suggestion);
     searchTextController.text = suggestion;
     setState(() {
-      filteredCategories.clear();
+      filteredSearchTextList.clear();
     });
     BlocProvider.of<AppCubit>(context).setChipSelectedCategory(suggestion);
     Navigator.push(
@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _dismissSuggestions() {
     setState(() {
-      filteredCategories.clear();
+      filteredSearchTextList.clear();
     });
   }
 
@@ -116,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
                        
                       },
                     ),
-                    if (filteredCategories.isNotEmpty)
+                    if (filteredSearchTextList.isNotEmpty)
                       Container(
                         height: 300,
                         decoration: BoxDecoration(
@@ -126,9 +126,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Scrollbar(
                           child: ListView.builder(
                             physics: const BouncingScrollPhysics(),
-                            itemCount: filteredCategories.length,
+                            itemCount: filteredSearchTextList.length,
                             itemBuilder: (context, index) {
-                              final suggestion = filteredCategories[index];
+                              final suggestion = filteredSearchTextList[index];
                               return ListTile(
                                 title: Text(
                                   suggestion,
