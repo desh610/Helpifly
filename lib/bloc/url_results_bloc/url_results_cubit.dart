@@ -38,7 +38,8 @@ class UrlResultsCubit extends Cubit<UrlResultsState> {
   }
 
   Future<http.Response> analyzeURLBE(String urlString) async {
-    var url = Uri.parse('http://10.0.2.2:5000/url-analyze');
+    var url = Uri.parse('https://deshan96.pythonanywhere.com/url-analyze');
+    // var url = Uri.parse('http://10.0.2.2:5000/url-analyze');
     // Use the following line for local testing:
     // var url = Uri.parse('http://127.0.0.1:5000/predict');
 
