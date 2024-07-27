@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:helpifly/bloc/app_bloc/app_cubit.dart';
+import 'package:helpifly/widgets/widgets_exporter.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
 import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/views/login_screen.dart'; // Import LoginScreen for navigation
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+   ProfileScreen({super.key});
+
+    final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
 
   Future<void> _logout(BuildContext context) async {
     try {
@@ -41,7 +45,7 @@ class ProfileScreen extends StatelessWidget {
        backgroundColor: primaryColor,
       appBar: AppBar(
         backgroundColor: inCardColor,
-        title: const Text('Profile Screen'),
+        title: const Text('Profile'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -49,9 +53,25 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(
-        child: Text("Profile Screen", style: TextStyle(color: white)),
-      ),
+      body: Container(
+        padding: EdgeInsets.only(left: 15, right: 15, top: 10),
+        child: Column(
+          children: [
+            SizedBox(height: 25),
+                CustomTextField(controller: _firstNameController, hintText: "Enter your first name", overlineText: "First Name"),
+                SizedBox(height: 15),
+                CustomTextField(controller: _lastNameController, hintText: "Enter your last name", overlineText: "Last Name"),
+                SizedBox(height: 15),
+                Spacer(),
+                CustomButton(
+                    onTap: () {
+                    },
+                    buttonText: 'Update',
+                  ),
+                SizedBox(height: 15),
+          ],
+        ),
+      )
     );
   }
 }

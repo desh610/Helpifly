@@ -15,7 +15,7 @@ class MainScreen extends StatelessWidget {
     const HomeScreen(),
     UrlResultsScreen(),
     ForumScreen(),
-    const ProfileScreen(),
+    ProfileScreen(),
   ];
 
   void _onItemTapped(BuildContext context, int index) {
