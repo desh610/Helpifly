@@ -7,6 +7,7 @@ import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/helper/helper_functions.dart';
 import 'package:helpifly/widgets/custom_textfield.dart';
 import 'package:helpifly/widgets/custom_button.dart';
+import 'package:helpifly/widgets/skeletons.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 
@@ -51,36 +52,42 @@ class UrlResultsScreen extends StatelessWidget {
               BlocBuilder<UrlResultsCubit, UrlResultsState>(
                 builder: (context, state) {
                   if (state.isLoading) {
-                    return Center(child: Padding(
-                      padding: const EdgeInsets.only(top: 130),
-                      child: Text("Please wait...", style: TextStyle(color: lightGrayColor.withOpacity(0.8)),),
-                    ));
+                    return Skeletons(context: context)
+                        .urlSearchResultSkeleton();
                   } else if (state.error != null) {
-                    return Center(child: Text(state.error!, style: TextStyle(color: Colors.red)));
+                    return Center(
+                        child: Text(state.error!,
+                            style: TextStyle(color: Colors.red)));
                   } else {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           "Results",
-                          style: TextStyle(fontSize: 18, color: white, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: white,
+                              fontWeight: FontWeight.bold),
                         ),
                         SizedBox(height: 5),
                         CustomPercentage(
                           title: "Positive",
-                          percentage: "${state.positivePercentage.toStringAsFixed(2)}%",
+                          percentage:
+                              "${state.positivePercentage.toStringAsFixed(2)}%",
                           fillPercentage: state.positivePercentage,
                           fillColor: green,
                         ),
                         CustomPercentage(
                           title: "Negative",
-                          percentage: "${state.negativePercentage.toStringAsFixed(2)}%",
+                          percentage:
+                              "${state.negativePercentage.toStringAsFixed(2)}%",
                           fillPercentage: state.negativePercentage,
                           fillColor: CupertinoColors.destructiveRed,
                         ),
                         CustomPercentage(
                           title: "Neutral",
-                          percentage: "${state.neutralPercentage.toStringAsFixed(2)}%",
+                          percentage:
+                              "${state.neutralPercentage.toStringAsFixed(2)}%",
                           fillPercentage: state.neutralPercentage,
                           fillColor: CupertinoColors.activeOrange,
                         ),
@@ -90,7 +97,10 @@ class UrlResultsScreen extends StatelessWidget {
                           children: [
                             Text(
                               "Overall Product Quality",
-                              style: TextStyle(fontSize: 18, color: white, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: white,
+                                  fontWeight: FontWeight.bold),
                             ),
                             Container(
                               height: 90,
@@ -104,42 +114,56 @@ class UrlResultsScreen extends StatelessWidget {
                                 direction: Axis.vertical,
                                 center: Text(
                                   "${state.positivePercentage.toStringAsFixed(2)}%",
-                                  style: TextStyle(fontSize: 18, color: white, fontWeight: FontWeight.w500),
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: white,
+                                      fontWeight: FontWeight.w500),
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(height: 25),
-                        ValueListenableBuilder(
-                          valueListenable: _urlController,
-                          builder: (context, _, __) {
-                            return CustomButton(
-                              onTap: () {
-                                closeKeyboard(context);
-                                context.read<UrlResultsCubit>().analyzeUrl(_urlController.text);
-                              },
-                              buttonText: "Check Quality",
-                              enabled: _urlController.text.isNotEmpty,
-                            );
-                          },
-                        ),
-                        SizedBox(height: 10),
-                        CustomButton(
-                          onTap: () {
-                            closeKeyboard(context);
-                            Navigator.pop(context);
-                          },
-                          buttonText: "Cancel",
-                          buttonColor: cardColor,
-                          textColor: white,
-                        ),
-                        SizedBox(height: 15),
+                      
+                        // ValueListenableBuilder(
+                        //   valueListenable: _urlController,
+                        //   builder: (context, _, __) {
+                        //     return CustomButton(
+                        //       onTap: () {
+                        //         closeKeyboard(context);
+                        //         context.read<UrlResultsCubit>().analyzeUrl(_urlController.text, context);
+                        //       },
+                        //       buttonText: "Check Quality",
+                        //       enabled: _urlController.text.isNotEmpty && !state.isLoading,
+                        //     );
+                        //   },
+                        // ),
                       ],
                     );
                   }
                 },
               ),
+              //  SizedBox(height: MediaQuery.of(context).size.height * 0.06),
+              BlocBuilder<UrlResultsCubit, UrlResultsState>(
+                builder: (context, state) {
+                  return Padding(
+                    padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.09),
+                    child:  
+                    ValueListenableBuilder(
+                          valueListenable: _urlController,
+                          builder: (context, _, __) {
+                            return CustomButton(
+                              onTap: () {
+                                closeKeyboard(context);
+                                context.read<UrlResultsCubit>().analyzeUrl(_urlController.text, context);
+                              },
+                              buttonText: "Check Quality",
+                              enabled: _urlController.text.isNotEmpty && !state.isLoading,
+                            );
+                          },
+                        ),
+                  );
+                },
+              )
             ],
           ),
         ),

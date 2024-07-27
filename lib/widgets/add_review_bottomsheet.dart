@@ -1,3 +1,5 @@
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:helpifly/bloc/app_bloc/app_cubit.dart';
@@ -104,6 +106,7 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
                           itemId: widget.item.id,
                           newReviewText: reviewText,
                           originalReviewText: _selectedReviewText!,
+                          context: context
                         );
                         setState(() {
                           _isUpdating = false;
@@ -114,6 +117,7 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
                           BlocProvider.of<AppCubit>(context).addReview(
                             itemId: widget.item.id,
                             reviewText: reviewText,
+                            context: context,
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(

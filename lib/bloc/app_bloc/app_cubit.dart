@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:helpifly/widgets/screen_loading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:helpifly/models/user_info_model.dart';
 import 'package:helpifly/bloc/app_bloc/app_state.dart';
@@ -218,8 +219,10 @@ class AppCubit extends Cubit<AppState> {
  Future<void> addReview({
   required String itemId,
   required String reviewText,
+  context,
 }) async {
   emit(state.copyWith(isLoading: true));
+  Loading().startLoading(context);
   try {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
@@ -275,8 +278,10 @@ class AppCubit extends Cubit<AppState> {
 
     // Emit a success state and refresh the items list
     emit(state.copyWith(isLoading: false));
+    Loading().stopLoading(context);
     await _fetchItemsFromFirestore(); // Refresh the list of items to include new reviews
   } catch (e) {
+    Loading().stopLoading(context);
     emit(state.copyWith(isLoading: false, error: 'Failed to add review: $e'));
   }
 }
@@ -288,11 +293,14 @@ Future<void> updateReview({
   required String itemId,
   required String newReviewText,
   required String originalReviewText,
+  context,
 }) async {
+  Loading().startLoading(context);
   emit(state.copyWith(isLoading: true));
   try {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
+      Loading().stopLoading(context);
       emit(state.copyWith(isLoading: false, error: 'User not logged in'));
       return;
     }
@@ -316,6 +324,7 @@ Future<void> updateReview({
         await _firestore.collection('items').doc(itemId).get();
     final itemData = itemDoc.data();
     if (itemData == null) {
+      Loading().stopLoading(context);
       emit(state.copyWith(isLoading: false, error: 'Item not found'));
       return;
     }
@@ -327,6 +336,7 @@ Future<void> updateReview({
     int reviewIndex = reviews.indexWhere((review) => review['reviewText'] == originalReviewText && review['reviewedBy'] == uid);
     
     if (reviewIndex == -1) {
+      Loading().stopLoading(context);
       emit(state.copyWith(isLoading: false, error: 'Review not found'));
       return;
     }
@@ -365,9 +375,11 @@ Future<void> updateReview({
     });
 
     // Emit a success state and refresh the items list
+    Loading().stopLoading(context);
     emit(state.copyWith(isLoading: false));
     await _fetchItemsFromFirestore(); // Refresh the list of items to include updated reviews
   } catch (e) {
+    Loading().stopLoading(context);
     emit(state.copyWith(isLoading: false, error: 'Failed to update review: $e'));
   }
 }

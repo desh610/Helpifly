@@ -1,12 +1,15 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:helpifly/bloc/url_results_bloc/url_results_state.dart';
+import 'package:helpifly/widgets/screen_loading.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class UrlResultsCubit extends Cubit<UrlResultsState> {
   UrlResultsCubit() : super(UrlResultsState());
 
-  Future<void> analyzeUrl(String url) async {
+  Future<void> analyzeUrl(String url, BuildContext context) async {
+    // Loading().startLoading(context);
     emit(state.copyWith(isLoading: true));
     try {
       final response = await analyzeURLBE(url);
@@ -23,7 +26,9 @@ class UrlResultsCubit extends Cubit<UrlResultsState> {
           neutralPercentage: neutralPercentage,
           isLoading: false,
         ));
+        // Loading().stopLoading(context);
       } else {
+        // Loading().stopLoading(context);
         emit(state.copyWith(
           isLoading: false,
           error: "Failed to load results.",
