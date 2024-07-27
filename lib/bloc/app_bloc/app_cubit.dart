@@ -255,12 +255,13 @@ class AppCubit extends Cubit<AppState> {
       currentCredit -= 1;
     }
 
-    // Create a new Review object
+    // Create a new Review object with the sentiment label
     Review newReview = Review(
       reviewText: reviewText,
       reviewedBy: uid,
       firstName: firstName,
       lastName: lastName,
+      sentimentLabel: sentimentLabel, // Include sentiment label
     );
 
     // Add the new review to the reviews array
@@ -282,10 +283,11 @@ class AppCubit extends Cubit<AppState> {
 
 
 
+
 Future<void> updateReview({
   required String itemId,
-  required String reviewText,
-  required int reviewIndex,
+  required String newReviewText,
+  required String originalReviewText,
 }) async {
   emit(state.copyWith(isLoading: true));
   try {
@@ -305,7 +307,7 @@ Future<void> updateReview({
     String lastName = userData['lastName'] ?? 'Unknown';
 
     // Perform sentiment analysis on the updated review text
-    var response = await analyze(reviewText);
+    var response = await analyze(newReviewText);
     var responseBody = jsonDecode(response.body);
     String newSentimentLabel = responseBody['label'];
 
@@ -320,20 +322,25 @@ Future<void> updateReview({
 
     // Extract the reviews array
     List<dynamic> reviews = itemData['reviews'] ?? [];
-    if (reviewIndex >= reviews.length) {
-      emit(state.copyWith(isLoading: false, error: 'Review index out of bounds'));
+    
+    // Locate the index of the original review text
+    int reviewIndex = reviews.indexWhere((review) => review['reviewText'] == originalReviewText && review['reviewedBy'] == uid);
+    
+    if (reviewIndex == -1) {
+      emit(state.copyWith(isLoading: false, error: 'Review not found'));
       return;
     }
 
-    // Determine the old sentiment label
-    String oldSentimentLabel = await _getOldSentimentLabel(itemId, reviewIndex);
+    // Get the old sentiment label from the review
+    String oldSentimentLabel = reviews[reviewIndex]['sentimentLabel'] ?? 'NEUTRAL';
 
-    // Create an updated Review object
+    // Create an updated Review object with the new sentiment label
     Review updatedReview = Review(
-      reviewText: reviewText,
+      reviewText: newReviewText,
       reviewedBy: uid,
       firstName: firstName,
       lastName: lastName,
+      sentimentLabel: newSentimentLabel, // Add sentimentLabel to the review
     );
     reviews[reviewIndex] = updatedReview.toJson();
 
@@ -365,31 +372,6 @@ Future<void> updateReview({
   }
 }
 
-
-// Helper function to get the old sentiment label from the existing review
-Future<String> _getOldSentimentLabel(String itemId, int reviewIndex) async {
-  // Fetch the item document
-  DocumentSnapshot<Map<String, dynamic>> itemDoc =
-      await _firestore.collection('items').doc(itemId).get();
-  final itemData = itemDoc.data();
-  if (itemData == null) {
-    throw Exception('Item not found');
-  }
-
-  // Extract the reviews array
-  List<dynamic> reviews = itemData['reviews'] ?? [];
-  if (reviewIndex >= reviews.length) {
-    throw Exception('Review index out of bounds');
-  }
-
-  // Extract the old review text
-  String oldReviewText = reviews[reviewIndex]['reviewText'];
-
-  // Perform sentiment analysis on the old review text
-  var response = await analyze(oldReviewText);
-  var responseBody = jsonDecode(response.body);
-  return responseBody['label'];
-}
 
 
 // ////////////////////////////// AI

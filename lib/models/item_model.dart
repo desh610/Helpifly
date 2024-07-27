@@ -3,12 +3,14 @@ class Review {
   final String reviewedBy;
   final String? firstName;
   final String? lastName;
+  final String? sentimentLabel;
 
   Review({
     required this.reviewText,
     required this.reviewedBy,
     this.firstName,
     this.lastName,
+    this.sentimentLabel,
   });
 
   // Convert Review to JSON
@@ -18,6 +20,7 @@ class Review {
       'reviewedBy': reviewedBy,
       'firstName': firstName ?? "",
       'lastName': lastName ?? "",
+      'sentimentLabel': sentimentLabel ?? "",
     };
   }
 
@@ -27,6 +30,7 @@ class Review {
       reviewedBy: json['reviewedBy'],
       firstName: json['firstName'] ?? "",
       lastName: json['lastName'] ?? "",
+      sentimentLabel: json['sentimentLabel'] ?? "",
     );
   }
 }
