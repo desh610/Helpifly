@@ -241,11 +241,12 @@ class AppCubit extends Cubit<AppState> {
     var responseBody = jsonDecode(response.body);
     String sentimentLabel = responseBody['label'];
     
-    // Fetch item information to get the current credit
+    // Fetch item information to get the current reviews and credit
     DocumentSnapshot<Map<String, dynamic>> itemDoc =
         await _firestore.collection('items').doc(itemId).get();
     final itemData = itemDoc.data() ?? {};
     int currentCredit = itemData['credit'] ?? 0;
+    List<dynamic> reviews = itemData['reviews'] ?? [];
 
     // Update the credit based on sentiment
     if (sentimentLabel == 'POSITIVE') {
@@ -262,9 +263,12 @@ class AppCubit extends Cubit<AppState> {
       lastName: lastName,
     );
 
-    // Update the reviews field and credit of the specified item
+    // Add the new review to the reviews array
+    reviews.add(newReview.toJson());
+
+    // Update the item document with the new reviews array and updated credit
     await _firestore.collection('items').doc(itemId).update({
-      'reviews': FieldValue.arrayUnion([newReview.toJson()]),
+      'reviews': reviews,
       'credit': currentCredit,
     });
 
@@ -275,6 +279,7 @@ class AppCubit extends Cubit<AppState> {
     emit(state.copyWith(isLoading: false, error: 'Failed to add review: $e'));
   }
 }
+
 
 
 Future<void> updateReview({
@@ -313,7 +318,7 @@ Future<void> updateReview({
       return;
     }
 
-    // Extract and update the reviews array
+    // Extract the reviews array
     List<dynamic> reviews = itemData['reviews'] ?? [];
     if (reviewIndex >= reviews.length) {
       emit(state.copyWith(isLoading: false, error: 'Review index out of bounds'));
@@ -359,6 +364,7 @@ Future<void> updateReview({
     emit(state.copyWith(isLoading: false, error: 'Failed to update review: $e'));
   }
 }
+
 
 // Helper function to get the old sentiment label from the existing review
 Future<String> _getOldSentimentLabel(String itemId, int reviewIndex) async {
