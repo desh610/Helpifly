@@ -18,4 +18,38 @@ class Skeletons {
           ],
         ));
   }
+  Widget homeScreenLoaders() {
+    return Container(
+        child: Row(
+          children: [
+            SkeletonAvatar(
+              style: SkeletonAvatarStyle(
+                  width: 100,
+                  height: 120,
+                  borderRadius: BorderRadius.circular(8)),
+            ),
+            SizedBox(width: 12),
+             SkeletonAvatar(
+              style: SkeletonAvatarStyle(
+                  width: 100,
+                  height: 120,
+                  borderRadius: BorderRadius.circular(8)),
+            ),
+            SizedBox(width: 12),
+             SkeletonAvatar(
+              style: SkeletonAvatarStyle(
+                  width: 100,
+                  height: 120,
+                  borderRadius: BorderRadius.circular(8)),
+            ),
+             SizedBox(width: 12),
+             SkeletonAvatar(
+              style: SkeletonAvatarStyle(
+                  width: 100,
+                  height: 120,
+                  borderRadius: BorderRadius.circular(8)),
+            ),
+          ],
+        ));
+  }
 }

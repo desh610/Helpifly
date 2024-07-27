@@ -7,6 +7,7 @@ import 'package:helpifly/helper/helper_functions.dart';
 import 'package:helpifly/models/item_model.dart';
 import 'package:helpifly/views/search_results_screen.dart';
 import 'package:helpifly/widgets/add_review_bottomsheet.dart';
+import 'package:helpifly/widgets/skeletons.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -218,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: BlocBuilder<AppCubit, AppState>(
                     builder: (context, state) {
                       if (state.isLoading) {
-                        return Center(child: CircularProgressIndicator());
+                        return Skeletons(context: context).homeScreenLoaders();
                       } else if (state.error != null) {
                         return Center(
                             child: Text(state.error!,
@@ -291,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: BlocBuilder<AppCubit, AppState>(
                     builder: (context, state) {
                       if (state.isLoading) {
-                        return Center(child: CircularProgressIndicator());
+                        return Skeletons(context: context).homeScreenLoaders();
                       } else if (state.error != null) {
                         return Center(
                             child: Text(state.error!,
@@ -405,6 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                 ),
+                const SizedBox(height: 15),
               ],
             ),
           ),
