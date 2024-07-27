@@ -12,7 +12,7 @@ class CustomButton extends StatelessWidget {
   final IconData? leadingIcon;
   final Color? iconColor;
   final double? iconSize;
-  final bool enabled; // Added enabled property
+  final bool enabled;
 
   const CustomButton({
     Key? key,
@@ -24,42 +24,48 @@ class CustomButton extends StatelessWidget {
     this.leadingIcon,
     this.iconColor,
     this.iconSize,
-    this.enabled = true, // Default to true
+    this.enabled = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: enabled ? onTap : null, // Enable or disable the onTap callback
-      child: Container(
-        height: buttonType == ButtonType.Medium ? 48 : 32,
-        width: buttonType == ButtonType.Medium ? MediaQuery.of(context).size.width : null,
-        padding: buttonType == ButtonType.Small ? EdgeInsets.symmetric(horizontal: 12) : null,
-        decoration: BoxDecoration(
-          color: enabled ? buttonColor : Colors.grey, // Change color if disabled
-          borderRadius: BorderRadius.circular(buttonType == ButtonType.Medium ? 8 : 6),
-        ),
-        child: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (leadingIcon != null) ...[
-                Icon(
-                  leadingIcon,
-                  color: iconColor ?? textColor,
-                  size: iconSize ?? 20,
+    return Material(
+      color: enabled ? buttonColor : Colors.grey, // Button background color
+      borderRadius: BorderRadius.circular(buttonType == ButtonType.Medium ? 8 : 6),
+      child: InkWell(
+        onTap: enabled ? onTap : null,
+        splashColor: Colors.white.withOpacity(0.2), // Clickable effect color
+        borderRadius: BorderRadius.circular(buttonType == ButtonType.Medium ? 8 : 6),
+        child: Container(
+          height: buttonType == ButtonType.Medium ? 48 : 32,
+          width: buttonType == ButtonType.Medium ? MediaQuery.of(context).size.width : null,
+          padding: buttonType == ButtonType.Small ? EdgeInsets.symmetric(horizontal: 12) : null,
+          decoration: BoxDecoration(
+            color: Colors.transparent, // Transparent background to show InkWell effect
+            borderRadius: BorderRadius.circular(buttonType == ButtonType.Medium ? 8 : 6),
+          ),
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (leadingIcon != null) ...[
+                  Icon(
+                    leadingIcon,
+                    color: iconColor ?? textColor,
+                    size: iconSize ?? 20,
+                  ),
+                  SizedBox(width: 8),
+                ],
+                Text(
+                  buttonText,
+                  style: TextStyle(
+                    color: enabled ? textColor : Colors.black.withOpacity(0.5),
+                    fontSize: buttonType == ButtonType.Medium ? 16 : 14,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                SizedBox(width: 8),
               ],
-              Text(
-                buttonText,
-                style: TextStyle(
-                  color: enabled ? textColor : Colors.black.withOpacity(0.5), // Change text color if disabled
-                  fontSize: buttonType == ButtonType.Medium ? 16 : 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

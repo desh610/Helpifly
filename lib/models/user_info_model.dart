@@ -28,4 +28,18 @@ class UserInfoModel {
       'uid': uid,
     };
   }
+
+  UserInfoModel copyWith({
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? uid,
+  }) {
+    return UserInfoModel(
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      email: email ?? this.email,
+      uid: uid ?? this.uid,
+    );
+  }
 }

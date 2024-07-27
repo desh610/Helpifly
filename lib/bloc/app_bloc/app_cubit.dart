@@ -421,6 +421,24 @@ Future<http.Response> analyze(String feedback) async {
 
 
   
+void updateUserInfo(String firstName, String lastName) async {
+  final currentState = state;
+  final updatedUserInfo = currentState.userInfo.copyWith(
+    firstName: firstName,
+    lastName: lastName,
+  );
+
+  // Update the state
+  emit(currentState.copyWith(userInfo: updatedUserInfo));
+
+  // Update the cache
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_info', jsonEncode(updatedUserInfo.toJson()));
+  } catch (e) {
+    emit(currentState.copyWith(error: 'Failed to update user info cache: $e'));
+  }
+}
 
 
 
