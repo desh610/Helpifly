@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:helpifly/bloc/app_bloc/app_cubit.dart';
 import 'package:helpifly/bloc/app_bloc/app_state.dart';
+import 'package:helpifly/widgets/alerts.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:helpifly/constants/colors.dart';
@@ -64,9 +65,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading user info: ${e.toString()}')),
-      );
+      showAlert(context, 'Error loading user info', red);
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('Error loading user info: ${e.toString()}')),
+      // );
     }
   }
 
@@ -94,9 +96,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
       context.read<AppCubit>().setCurrentTabIndex(0);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error signing out: ${e.toString()}')),
-      );
+      showAlert(context, 'Error signing out', red);
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('Error signing out: ${e.toString()}')),
+      // );
     }
   }
 
@@ -130,17 +133,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       // Update the user info in AppCubit
       context.read<AppCubit>().updateUserInfo(firstName, lastName);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profile updated successfully')),
-      );
+      showAlert(context, 'Profile updated successfully', green);
 
       _originalFirstName = firstName;
       _originalLastName = lastName;
       _checkButtonEnable();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating profile: ${e.toString()}')),
-      );
+      showAlert(context, 'Error updating profile', red);
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('Error updating profile: ${e.toString()}')),
+      // );
     }
   }
 

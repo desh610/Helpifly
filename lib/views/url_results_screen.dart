@@ -55,9 +55,8 @@ class UrlResultsScreen extends StatelessWidget {
                     return Skeletons(context: context)
                         .urlSearchResultSkeleton();
                   } else if (state.error != null) {
-                    return Center(
-                        child: Text(state.error!,
-                            style: TextStyle(color: Colors.red)));
+                    return Skeletons(context: context)
+                        .urlSearchResultSkeleton();;
                   } else {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,7 +81,7 @@ class UrlResultsScreen extends StatelessWidget {
                           percentage:
                               "${state.negativePercentage.toStringAsFixed(2)}%",
                           fillPercentage: state.negativePercentage,
-                          fillColor: CupertinoColors.destructiveRed,
+                          fillColor: red,
                         ),
                         CustomPercentage(
                           title: "Neutral",

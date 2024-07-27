@@ -11,3 +11,4 @@ const cardGrayColor = Color(0xFF878995);
 const cardColor = Color(0xFF3A3B40);
 const inCardColor = Color(0xFF434343);
 const green = Color(0xFF24DE53);
+const red = Color(0xFFFF3B30);
