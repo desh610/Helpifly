@@ -163,7 +163,8 @@ class UrlResultsScreen extends StatelessWidget {
                         ),
                   );
                 },
-              )
+              ),
+              SizedBox(height: 15,)
             ],
           ),
         ),
