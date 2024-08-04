@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:helpifly/widgets/screen_loading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:helpifly/models/user_info_model.dart';
 import 'package:helpifly/views/main_screen.dart';
@@ -21,7 +22,7 @@ class LoginCubit extends Cubit<LoginState> {
     required String password,
   }) async {
     emit(state.copyWith(isLoading: true));
-    
+    Loading().startLoading(context);
     try {
       UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email.trim(),

@@ -92,6 +92,7 @@ class _NewPostBottomSheetState extends State<NewPostBottomSheet> {
                       Navigator.of(context).pop(); // Close the bottom sheet after publishing
                     },
                     buttonText: "Publish",
+                    enabled: _titleController.text.isNotEmpty && _descriptionController.text.isNotEmpty,
                   ),
                   SizedBox(height: 15),
                 ],

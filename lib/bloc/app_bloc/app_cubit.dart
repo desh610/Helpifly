@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:helpifly/widgets/screen_loading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:helpifly/models/user_info_model.dart';
 import 'package:helpifly/bloc/app_bloc/app_state.dart';
@@ -218,8 +219,10 @@ class AppCubit extends Cubit<AppState> {
  Future<void> addReview({
   required String itemId,
   required String reviewText,
+  context,
 }) async {
   emit(state.copyWith(isLoading: true));
+  Loading().startLoading(context);
   try {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
@@ -241,11 +244,12 @@ class AppCubit extends Cubit<AppState> {
     var responseBody = jsonDecode(response.body);
     String sentimentLabel = responseBody['label'];
     
-    // Fetch item information to get the current credit
+    // Fetch item information to get the current reviews and credit
     DocumentSnapshot<Map<String, dynamic>> itemDoc =
         await _firestore.collection('items').doc(itemId).get();
     final itemData = itemDoc.data() ?? {};
     int currentCredit = itemData['credit'] ?? 0;
+    List<dynamic> reviews = itemData['reviews'] ?? [];
 
     // Update the credit based on sentiment
     if (sentimentLabel == 'POSITIVE') {
@@ -254,38 +258,49 @@ class AppCubit extends Cubit<AppState> {
       currentCredit -= 1;
     }
 
-    // Create a new Review object
+    // Create a new Review object with the sentiment label
     Review newReview = Review(
       reviewText: reviewText,
       reviewedBy: uid,
       firstName: firstName,
       lastName: lastName,
+      sentimentLabel: sentimentLabel, // Include sentiment label
     );
 
-    // Update the reviews field and credit of the specified item
+    // Add the new review to the reviews array
+    reviews.add(newReview.toJson());
+
+    // Update the item document with the new reviews array and updated credit
     await _firestore.collection('items').doc(itemId).update({
-      'reviews': FieldValue.arrayUnion([newReview.toJson()]),
+      'reviews': reviews,
       'credit': currentCredit,
     });
 
     // Emit a success state and refresh the items list
     emit(state.copyWith(isLoading: false));
+    Loading().stopLoading(context);
     await _fetchItemsFromFirestore(); // Refresh the list of items to include new reviews
   } catch (e) {
+    Loading().stopLoading(context);
     emit(state.copyWith(isLoading: false, error: 'Failed to add review: $e'));
   }
 }
 
 
+
+
 Future<void> updateReview({
   required String itemId,
-  required String reviewText,
-  required int reviewIndex,
+  required String newReviewText,
+  required String originalReviewText,
+  context,
 }) async {
+  Loading().startLoading(context);
   emit(state.copyWith(isLoading: true));
   try {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
+      Loading().stopLoading(context);
       emit(state.copyWith(isLoading: false, error: 'User not logged in'));
       return;
     }
@@ -300,7 +315,7 @@ Future<void> updateReview({
     String lastName = userData['lastName'] ?? 'Unknown';
 
     // Perform sentiment analysis on the updated review text
-    var response = await analyze(reviewText);
+    var response = await analyze(newReviewText);
     var responseBody = jsonDecode(response.body);
     String newSentimentLabel = responseBody['label'];
 
@@ -309,26 +324,33 @@ Future<void> updateReview({
         await _firestore.collection('items').doc(itemId).get();
     final itemData = itemDoc.data();
     if (itemData == null) {
+      Loading().stopLoading(context);
       emit(state.copyWith(isLoading: false, error: 'Item not found'));
       return;
     }
 
-    // Extract and update the reviews array
+    // Extract the reviews array
     List<dynamic> reviews = itemData['reviews'] ?? [];
-    if (reviewIndex >= reviews.length) {
-      emit(state.copyWith(isLoading: false, error: 'Review index out of bounds'));
+    
+    // Locate the index of the original review text
+    int reviewIndex = reviews.indexWhere((review) => review['reviewText'] == originalReviewText && review['reviewedBy'] == uid);
+    
+    if (reviewIndex == -1) {
+      Loading().stopLoading(context);
+      emit(state.copyWith(isLoading: false, error: 'Review not found'));
       return;
     }
 
-    // Determine the old sentiment label
-    String oldSentimentLabel = await _getOldSentimentLabel(itemId, reviewIndex);
+    // Get the old sentiment label from the review
+    String oldSentimentLabel = reviews[reviewIndex]['sentimentLabel'] ?? 'NEUTRAL';
 
-    // Create an updated Review object
+    // Create an updated Review object with the new sentiment label
     Review updatedReview = Review(
-      reviewText: reviewText,
+      reviewText: newReviewText,
       reviewedBy: uid,
       firstName: firstName,
       lastName: lastName,
+      sentimentLabel: newSentimentLabel, // Add sentimentLabel to the review
     );
     reviews[reviewIndex] = updatedReview.toJson();
 
@@ -353,43 +375,22 @@ Future<void> updateReview({
     });
 
     // Emit a success state and refresh the items list
+    Loading().stopLoading(context);
     emit(state.copyWith(isLoading: false));
     await _fetchItemsFromFirestore(); // Refresh the list of items to include updated reviews
   } catch (e) {
+    Loading().stopLoading(context);
     emit(state.copyWith(isLoading: false, error: 'Failed to update review: $e'));
   }
 }
 
-// Helper function to get the old sentiment label from the existing review
-Future<String> _getOldSentimentLabel(String itemId, int reviewIndex) async {
-  // Fetch the item document
-  DocumentSnapshot<Map<String, dynamic>> itemDoc =
-      await _firestore.collection('items').doc(itemId).get();
-  final itemData = itemDoc.data();
-  if (itemData == null) {
-    throw Exception('Item not found');
-  }
-
-  // Extract the reviews array
-  List<dynamic> reviews = itemData['reviews'] ?? [];
-  if (reviewIndex >= reviews.length) {
-    throw Exception('Review index out of bounds');
-  }
-
-  // Extract the old review text
-  String oldReviewText = reviews[reviewIndex]['reviewText'];
-
-  // Perform sentiment analysis on the old review text
-  var response = await analyze(oldReviewText);
-  var responseBody = jsonDecode(response.body);
-  return responseBody['label'];
-}
 
 
 // ////////////////////////////// AI
 
 Future<http.Response> analyze(String feedback) async {
-    var url = Uri.parse('http://10.0.2.2:5000/analyze');
+    var url = Uri.parse('https://deshan96.pythonanywhere.com/analyze');
+    // var url = Uri.parse('http://10.0.2.2:5000/analyze');
     // Use the following line for local testing:
     // var url = Uri.parse('http://127.0.0.1:5000/predict');
     try {
@@ -420,6 +421,24 @@ Future<http.Response> analyze(String feedback) async {
 
 
   
+void updateUserInfo(String firstName, String lastName) async {
+  final currentState = state;
+  final updatedUserInfo = currentState.userInfo.copyWith(
+    firstName: firstName,
+    lastName: lastName,
+  );
+
+  // Update the state
+  emit(currentState.copyWith(userInfo: updatedUserInfo));
+
+  // Update the cache
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_info', jsonEncode(updatedUserInfo.toJson()));
+  } catch (e) {
+    emit(currentState.copyWith(error: 'Failed to update user info cache: $e'));
+  }
+}
 
 
 

@@ -1,15 +1,20 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:helpifly/bloc/url_results_bloc/url_results_state.dart';
+import 'package:helpifly/constants/colors.dart';
+import 'package:helpifly/widgets/alerts.dart';
+import 'package:helpifly/widgets/screen_loading.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class UrlResultsCubit extends Cubit<UrlResultsState> {
   UrlResultsCubit() : super(UrlResultsState());
 
-  Future<void> analyzeUrl(String url) async {
+  Future<void> analyzeUrl(String url, BuildContext context) async {
+    // Loading().startLoading(context);
     emit(state.copyWith(isLoading: true));
     try {
-      final response = await analyzeURLBE(url);
+      final response = await analyzeURLBE(url, context);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -23,13 +28,17 @@ class UrlResultsCubit extends Cubit<UrlResultsState> {
           neutralPercentage: neutralPercentage,
           isLoading: false,
         ));
+        // Loading().stopLoading(context);
       } else {
+        // Loading().stopLoading(context);
+        showAlert(context, 'Failed to load results', red);
         emit(state.copyWith(
           isLoading: false,
           error: "Failed to load results.",
         ));
       }
     } catch (e) {
+      showAlert(context, 'Something went wrong', red);
       emit(state.copyWith(
         isLoading: false,
         error: "An error occurred: $e",
@@ -37,8 +46,9 @@ class UrlResultsCubit extends Cubit<UrlResultsState> {
     }
   }
 
-  Future<http.Response> analyzeURLBE(String urlString) async {
-    var url = Uri.parse('http://10.0.2.2:5000/url-analyze');
+  Future<http.Response> analyzeURLBE(String urlString, BuildContext context) async {
+    var url = Uri.parse('https://deshan96.pythonanywhere.com/url-analyze');
+    // var url = Uri.parse('http://10.0.2.2:5000/url-analyze');
     // Use the following line for local testing:
     // var url = Uri.parse('http://127.0.0.1:5000/predict');
 
@@ -55,6 +65,7 @@ class UrlResultsCubit extends Cubit<UrlResultsState> {
         print('Response status: ${response.statusCode}');
         print('Response body: ${response.body}');
       } else {
+        showAlert(context, 'Something went wrong', red);
         print('Failed to load. Status code: ${response.statusCode}');
       }
 

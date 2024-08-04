@@ -1,3 +1,5 @@
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:helpifly/bloc/app_bloc/app_cubit.dart';
@@ -19,7 +21,7 @@ class AddReviewBottomSheet extends StatefulWidget {
 class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
   final TextEditingController _reviewController = TextEditingController();
   bool _isUpdating = false;
-  int? _updatingReviewIndex;
+  String? _selectedReviewText;
 
   @override
   void dispose() {
@@ -32,6 +34,7 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
     return Container(
       color: cardColor,
       padding: EdgeInsets.all(15.0),
+      // height: MediaQuery.of(context).size.height - 30,
       height: MediaQuery.of(context).size.height - 150,
       child: Column(
         children: [
@@ -99,21 +102,23 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
                         );
                         return;
                       }
-                      if (_isUpdating && _updatingReviewIndex != null) {
+                      if (_isUpdating && _selectedReviewText != null) {
                         BlocProvider.of<AppCubit>(context).updateReview(
                           itemId: widget.item.id,
-                          reviewText: reviewText,
-                          reviewIndex: _updatingReviewIndex!,
+                          newReviewText: reviewText,
+                          originalReviewText: _selectedReviewText!,
+                          context: context
                         );
                         setState(() {
                           _isUpdating = false;
-                          _updatingReviewIndex = null;
+                          _selectedReviewText = null;
                         });
                       } else {
                         if (canAddReview) {
                           BlocProvider.of<AppCubit>(context).addReview(
                             itemId: widget.item.id,
                             reviewText: reviewText,
+                            context: context,
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -164,7 +169,7 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
                         itemCount: userReviews.length,
                         itemBuilder: (context, index) {
                           final review = userReviews[index];
-                          final isSelected = _isUpdating && _updatingReviewIndex == index;
+                          final isSelected = _isUpdating && _selectedReviewText == review.reviewText;
 
                           return GestureDetector(
                             onTap: () {
@@ -172,12 +177,12 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
                                 if (isSelected) {
                                   // Deselect if the same review is tapped again
                                   _isUpdating = false;
-                                  _updatingReviewIndex = null;
+                                  _selectedReviewText = null;
                                   _reviewController.clear();
                                 } else {
                                   _reviewController.text = review.reviewText;
                                   _isUpdating = true;
-                                  _updatingReviewIndex = index;
+                                  _selectedReviewText = review.reviewText;
                                 }
                               });
                             },
