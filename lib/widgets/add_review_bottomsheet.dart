@@ -34,6 +34,7 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
     return Container(
       color: cardColor,
       padding: EdgeInsets.all(15.0),
+      // height: MediaQuery.of(context).size.height - 30,
       height: MediaQuery.of(context).size.height - 150,
       child: Column(
         children: [

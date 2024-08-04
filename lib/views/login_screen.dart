@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:helpifly/bloc/login_bloc/login_cubit.dart';
 import 'package:helpifly/constants/colors.dart';
+import 'package:helpifly/helper/helper_functions.dart';
 import 'package:helpifly/views/signup_screen.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
 
@@ -25,6 +26,28 @@ class LoginScreen extends StatelessWidget {
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
                 ),
+                image: DecorationImage(image: AssetImage('assets/images/login7.png'), fit: BoxFit.cover)
+              ),
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 20, bottom: 20),
+                  child:  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                          "Login here",
+                          style: TextStyle(fontSize: 32, color: white, fontWeight: FontWeight.bold),
+                        ),
+                         SizedBox(height: 4),
+                              Text(
+                      "Explore your journey with Helpifly!",
+                      style: TextStyle(fontSize: 14, color: white, fontWeight: FontWeight.w600, letterSpacing: 1.6),
+                    ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -32,24 +55,24 @@ class LoginScreen extends StatelessWidget {
             padding: const EdgeInsets.only(left: 15, right: 15, top: 15),
             child: Column(
               children: [
-                Row(
-                  children: const [
-                    Text(
-                      "Login here",
-                      style: TextStyle(fontSize: 32, color: white, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 4),
-                Row(
-                  children: const [
-                    Text(
-                      "Explore your journey with Helpifly!",
-                      style: TextStyle(fontSize: 14, color: grayColor, fontWeight: FontWeight.w400, letterSpacing: 1.6),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 15),
+                // Row(
+                //   children: const [
+                //     Text(
+                //       "Login here",
+                //       style: TextStyle(fontSize: 32, color: white, fontWeight: FontWeight.bold),
+                //     ),
+                //   ],
+                // ),
+                // SizedBox(height: 4),
+                // Row(
+                //   children: const [
+                //     Text(
+                //       "Explore your journey with Helpifly!",
+                //       style: TextStyle(fontSize: 14, color: grayColor, fontWeight: FontWeight.w400, letterSpacing: 1.6),
+                //     ),
+                //   ],
+                // ),
+                const SizedBox(height: 5),
                 CustomTextField(
                   controller: _emailController,
                   hintText: "Enter your email",
@@ -72,6 +95,7 @@ class LoginScreen extends StatelessWidget {
                   builder: (context, state) {
                     return CustomButton(
                       onTap: () {
+                        closeKeyboard(context);
                         context.read<LoginCubit>().login(
                           context: context,
                           email: _emailController.text,
@@ -98,7 +122,7 @@ class LoginScreen extends StatelessWidget {
                           style: TextStyle(color: grayColor, fontSize: 14),
                         ),
                         TextSpan(
-                          text: "Signup",
+                          text: "Register",
                           style: TextStyle(color: lightGrayColor, fontSize: 14, fontWeight: FontWeight.w500),
                         ),
                       ],
