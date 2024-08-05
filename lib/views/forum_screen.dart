@@ -246,7 +246,7 @@ class ForumScreen extends StatelessWidget {
                                   CustomButton(
                                     onTap: () => _showCommentsBottomSheet(context, post),
                                     buttonText: "Comments",
-                                    buttonColor: cardGrayColor,
+                                    buttonColor: inCardColor,
                                     textColor: lightGrayColor,
                                     iconColor: lightGrayColor,
                                     leadingIcon: Icons.comment,
