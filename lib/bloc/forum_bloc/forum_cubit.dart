@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:helpifly/models/user_info_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:helpifly/models/post_model.dart';
 import 'forum_state.dart';
@@ -37,12 +38,18 @@ Future<void> createPost({
     
     String createdBy = currentUser.uid; // Get the UID
 
+    // Fetch user info for the current user
+    DocumentSnapshot<Map<String, dynamic>> userDoc =
+        await _firestore.collection('users').doc(createdBy).get();
+    UserInfoModel userInfo = UserInfoModel.fromJson(userDoc.data() ?? {});
+
     DocumentReference docRef = await _firestore.collection('posts').add({
       'title': title,
       'description': description,
       'createdAt': FieldValue.serverTimestamp(),
       'createdBy': createdBy,
       'comments': [], // Initially empty array
+      'createdUser': userInfo.toJson(),
     });
 
     PostModel newPost = PostModel(
@@ -52,6 +59,7 @@ Future<void> createPost({
       createdAt: Timestamp.now(),
       createdBy: createdBy,
       comments: [],
+       createdUser: userInfo,
     );
 
     await docRef.update({'id': docRef.id});
@@ -95,14 +103,16 @@ Future<void> _fetchPostsAndUpdateCache() async {
       // Fetch user info for each post
       DocumentSnapshot<Map<String, dynamic>> userDoc =
           await _firestore.collection('users').doc(createdBy).get();
-      final userData = userDoc.data() ?? {};
-      String firstName = userData['firstName'] ?? '';
-      String lastName = userData['lastName'] ?? '';
+          UserInfoModel userInfo = UserInfoModel.fromJson(userDoc.data() ?? {});
+      // final userData = userDoc.data() ?? {};
+      // String firstName = userData['firstName'] ?? '';
+      // String lastName = userData['lastName'] ?? '';
 
       // Create PostModel with additional fields
       PostModel post = PostModel.fromJson(data, doc.id).copyWith(
-        firstName: firstName,
-        lastName: lastName,
+        // firstName: firstName,
+        // lastName: lastName,
+         createdUser: userInfo,
       );
 
       posts.add(post);

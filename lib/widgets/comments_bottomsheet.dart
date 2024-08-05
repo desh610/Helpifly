@@ -88,7 +88,7 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                                       color: grayColor, size: 20),
                                 ),
                                 Text(
-                                  "${widget.post.firstName}'s post",
+                                  "${widget.post.createdUser!.firstName}'s post",
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: white,
