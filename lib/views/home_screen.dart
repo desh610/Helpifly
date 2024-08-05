@@ -234,6 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               onTap: () => _showAddReviewBottomSheet(context, state.products[index]),
                               child: Container(
                                 margin: const EdgeInsets.only(right: 12),
+                                padding: EdgeInsets.all(4),
                                 width: 100,
                                 height: 120,
                                 decoration: BoxDecoration(
@@ -248,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       decoration: BoxDecoration(
                                         image: DecorationImage(
                                           image: NetworkImage(
-                                              'https://i.pinimg.com/280x280_RS/56/ee/fe/56eefe4d7953d6cd43089ef54766fc2d.jpg'),
+                                              state.products[index].imageUrl),
                                           fit: BoxFit.cover,
                                         ),
                                         borderRadius: BorderRadius.circular(8),
@@ -321,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       decoration: BoxDecoration(
                                         image: DecorationImage(
                                           image: NetworkImage(
-                                              'https://i.pinimg.com/280x280_RS/56/ee/fe/56eefe4d7953d6cd43089ef54766fc2d.jpg'),
+                                              state.services[index].imageUrl),
                                           fit: BoxFit.cover,
                                         ),
                                         borderRadius: BorderRadius.circular(8),
@@ -383,7 +384,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               decoration: BoxDecoration(
                                 image: DecorationImage(
                                   image: NetworkImage(
-                                      'https://i.pinimg.com/280x280_RS/56/ee/fe/56eefe4d7953d6cd43089ef54766fc2d.jpg'),
+                                      'https://upload.wikimedia.org/wikipedia/commons/3/3a/Airtel_logo-01.png'),
                                   fit: BoxFit.cover,
                                 ),
                                 borderRadius: BorderRadius.circular(8),
