@@ -39,6 +39,8 @@ class LoginCubit extends Cubit<LoginState> {
           String userInfoJson = jsonEncode(userInfo.toJson());
           await prefs.setString('user_info', userInfoJson);
 
+           Loading().stopLoading(context);
+
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => MainScreen()), 

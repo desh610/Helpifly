@@ -52,12 +52,9 @@ class UrlResultsScreen extends StatelessWidget {
               BlocBuilder<UrlResultsCubit, UrlResultsState>(
                 builder: (context, state) {
                   if (state.isLoading) {
-                    return Skeletons(context: context)
-                        .urlSearchResultSkeleton();
-                  } else if (state.error != null) {
-                    return Skeletons(context: context)
-                        .urlSearchResultSkeleton();;
-                  } else {
+                    return Text("Please wait...", style: TextStyle(color: white),);
+                  } 
+                  else {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -122,20 +119,6 @@ class UrlResultsScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                      
-                        // ValueListenableBuilder(
-                        //   valueListenable: _urlController,
-                        //   builder: (context, _, __) {
-                        //     return CustomButton(
-                        //       onTap: () {
-                        //         closeKeyboard(context);
-                        //         context.read<UrlResultsCubit>().analyzeUrl(_urlController.text, context);
-                        //       },
-                        //       buttonText: "Check Quality",
-                        //       enabled: _urlController.text.isNotEmpty && !state.isLoading,
-                        //     );
-                        //   },
-                        // ),
                       ],
                     );
                   }

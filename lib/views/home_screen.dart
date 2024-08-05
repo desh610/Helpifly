@@ -219,7 +219,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: BlocBuilder<AppCubit, AppState>(
                     builder: (context, state) {
                       if (state.isLoading) {
-                        return Skeletons(context: context).homeScreenLoaders();
+                        return SizedBox();
+                        // return Skeletons(context: context).homeScreenLoaders();
                       } else if (state.error != null) {
                         return Center(
                             child: Text(state.error!,
@@ -293,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: BlocBuilder<AppCubit, AppState>(
                     builder: (context, state) {
                       if (state.isLoading) {
-                        return Skeletons(context: context).homeScreenLoaders();
+                       return Text("xxxxxxxx");
                       } else if (state.error != null) {
                         return Center(
                             child: Text(state.error!,

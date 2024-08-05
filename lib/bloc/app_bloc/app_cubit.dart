@@ -381,12 +381,9 @@ Future<void> updateReview({
   } catch (e) {
     Loading().stopLoading(context);
     emit(state.copyWith(isLoading: false, error: 'Failed to update review: $e'));
+    print('Error during review update: $e');
   }
 }
-
-
-
-// ////////////////////////////// AI
 
 Future<http.Response> analyze(String feedback) async {
     var url = Uri.parse('https://deshan96.pythonanywhere.com/analyze');
@@ -414,7 +411,7 @@ Future<http.Response> analyze(String feedback) async {
 
       return response;
     } catch (e) {
-      print('Error: $e');
+      print('Error during sentiment analysis: $e');
       rethrow;
     }
   }
