@@ -211,7 +211,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                                     decoration: BoxDecoration(
                                       image: DecorationImage(
                                         image: NetworkImage(
-                                          'https://i.pinimg.com/280x280_RS/56/ee/fe/56eefe4d7953d6cd43089ef54766fc2d.jpg',
+                                          item.imageUrl,
                                         ),
                                         fit: BoxFit.cover,
                                       ),
