@@ -60,14 +60,14 @@ class _SignupScreenState extends State<SignupScreen> {
                 ],
               ),
               SizedBox(height: 4),
-              Row(
+              Wrap(
                 children: const [
-                  Text("Explore your journey with Helpifly!",
+                  Text("Explore your journey with Helpifly!, Explore your journey with Helpifly! Explore your journey with Helpifly!",
                       style: TextStyle(
                           fontSize: 14,
                           color: grayColor,
                           fontWeight: FontWeight.w400,
-                          letterSpacing: 1.6)),
+                          letterSpacing: 1)),
                 ],
               ),
               SizedBox(height: 25),
@@ -80,7 +80,8 @@ class _SignupScreenState extends State<SignupScreen> {
                             width: 80,
                             decoration: BoxDecoration(
                               color: cardColor,
-                              borderRadius: BorderRadius.circular(12),
+                              // borderRadius: BorderRadius.circular(12),
+                              shape: BoxShape.circle,
                               image: _profileImage != null
                                   ? DecorationImage(
                                       image: FileImage(_profileImage!),

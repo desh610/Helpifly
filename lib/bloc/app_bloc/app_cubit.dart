@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:helpifly/widgets/screen_loading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +11,7 @@ import 'package:helpifly/models/user_info_model.dart';
 import 'package:helpifly/bloc/app_bloc/app_state.dart';
 import 'package:helpifly/models/item_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:image/image.dart' as img;
 
 class AppCubit extends Cubit<AppState> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -434,6 +438,87 @@ void updateUserInfo(String firstName, String lastName) async {
     await prefs.setString('user_info', jsonEncode(updatedUserInfo.toJson()));
   } catch (e) {
     emit(currentState.copyWith(error: 'Failed to update user info cache: $e'));
+  }
+}
+
+ Future<String> _uploadProfileImage(String uid, File profileImage) async {
+  try {
+    // Load the image
+    img.Image? image = img.decodeImage(profileImage.readAsBytesSync());
+    
+    // Resize the image to a smaller size
+    img.Image resizedImage = img.copyResize(image!, width: 100); // Resize to 100 pixels wide (maintaining aspect ratio)
+    
+    // Compress the image to reduce file size
+    List<int> compressedImage = img.encodeJpg(resizedImage, quality: 25); // Adjust quality as needed
+    
+    // Convert to Uint8List
+    Uint8List uint8list = Uint8List.fromList(compressedImage);
+
+    // Upload the compressed image
+    String filePath = 'profileImages/$uid.png';
+    await FirebaseStorage.instance.ref(filePath).putData(uint8list);
+    String downloadUrl = await FirebaseStorage.instance.ref(filePath).getDownloadURL();
+    return downloadUrl;
+  } catch (e) {
+    throw Exception('Error uploading image: $e');
+  }
+}
+
+Future<void> updateProfile({
+  required String firstName,
+  required String lastName,
+  File? profileImage,
+  // required BuildContext context,
+}) async {
+  try {
+    emit(state.copyWith(isLoading: true));
+    // Loading().startLoading(context);
+
+    String? profileImageUrl = state.userInfo.profileUrl;
+
+    // Upload profile image if a new file is provided
+    if (profileImage != null) {
+      profileImageUrl = await _uploadProfileImage(state.userInfo.uid, profileImage);
+    }
+
+    // Create a map of the updated profile data
+    final updatedUserInfo = {
+      'firstName': firstName,
+      'lastName': lastName,
+      if (profileImageUrl != null) 'profileUrl': profileImageUrl,
+    };
+
+    // Update the Firestore document
+    final userDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(state.userInfo.uid);
+    await userDocRef.update(updatedUserInfo);
+
+    // Update local state and SharedPreferences
+    final updatedUserInfoModel = UserInfoModel(
+      uid: state.userInfo.uid,
+      email: state.userInfo.email,
+      firstName: firstName,
+      lastName: lastName,
+      profileUrl: profileImageUrl ?? '',
+    );
+
+    // Save the updated user info to SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    String userInfoJson = jsonEncode(updatedUserInfoModel.toJson());
+    await prefs.setString('user_info', userInfoJson);
+
+    emit(state.copyWith(
+      userInfo: updatedUserInfoModel,
+      isLoading: false,
+    ));
+    // Loading().stopLoading(context);
+  } catch (e) {
+    emit(state.copyWith(isLoading: false));
+    // Loading().stopLoading(context);
+    // Handle error appropriately, e.g., show a snackbar or log the error
+    // throw e;
   }
 }
 
