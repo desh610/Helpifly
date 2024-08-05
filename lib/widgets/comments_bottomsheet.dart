@@ -101,21 +101,28 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                                       onTap: () async {
                                         // Call the deletePost method and wait for it to complete
                                         try {
-                                          await BlocProvider.of<ForumCubit>(context).deletePost(widget.post.id);
+                                          await BlocProvider.of<ForumCubit>(
+                                                  context)
+                                              .deletePost(widget.post.id);
                                           // Optionally show a success message or handle post-deletion logic
                                         } catch (e) {
                                           // Handle the error if necessary
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Failed to delete post: $e')),
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    'Failed to delete post: $e')),
                                           );
                                         } finally {
                                           // Pop the current screen regardless of success or failure
                                           Navigator.of(context).pop();
                                         }
                                       },
-
-                                      child: state.userInfo.uid == widget.post.createdBy ? Icon(Icons.delete,
-                                          color: Colors.red, size: 22) : SizedBox(),
+                                      child: state.userInfo.uid ==
+                                              widget.post.createdBy
+                                          ? Icon(Icons.delete,
+                                              color: Colors.red, size: 22)
+                                          : SizedBox(),
                                     );
                                   },
                                 ),
@@ -156,14 +163,45 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    "${comment.firstName ?? ""} ${comment.lastName ?? ""}",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: grayColor,
-                                      letterSpacing: 0.36,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "${comment.commentedUser!.firstName} ${comment.commentedUser!.lastName}",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: grayColor,
+                                          letterSpacing: 0.36,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      BlocBuilder<AppCubit, AppState>(
+                                        builder: (context, state) {
+                                          return comment.commentedBy ==
+                                                  state.userInfo.uid
+                                              ? GestureDetector(
+                                                  onTap: () {
+                                                    //delete comment
+                                                    BlocProvider.of<ForumCubit>(
+                                                            context)
+                                                        .deleteComment(
+                                                            postId:
+                                                                widget.post.id,
+                                                            commentText: comment
+                                                                .commentText);
+                                                  },
+                                                  child: Text(
+                                                    "Remove",
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: red),
+                                                  ),
+                                                )
+                                              : SizedBox();
+                                        },
+                                      )
+                                    ],
                                   ),
                                   Text(
                                     comment.commentText,

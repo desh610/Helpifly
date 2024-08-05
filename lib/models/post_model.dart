@@ -6,12 +6,14 @@ class Comment {
   final String commentedBy;
   final String? firstName;
   final String? lastName;
+   UserInfoModel? commentedUser;
 
   Comment({
     required this.commentText,
     required this.commentedBy,
     this.firstName,
     this.lastName,
+    this.commentedUser,
   });
 
   // Convert Comment to JSON
@@ -21,6 +23,7 @@ class Comment {
       'commentedBy': commentedBy,
       'firstName': firstName ?? "",
       'lastName': lastName ?? "",
+       'commentedUser': commentedUser?.toJson(),  // Handle potential null value
     };
   }
 
@@ -30,6 +33,9 @@ class Comment {
       commentedBy: json['commentedBy'],
       firstName: json['firstName'] ?? "",
       lastName: json['lastName'] ?? "",
+       commentedUser: json['commentedUser'] != null
+          ? UserInfoModel.fromJson(json['commentedUser'])
+          : null,  // Handle potential null value
     );
   }
 }

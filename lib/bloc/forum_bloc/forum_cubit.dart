@@ -146,16 +146,13 @@ Future<void> addComment({
     // Fetch user information
     DocumentSnapshot<Map<String, dynamic>> userDoc =
         await _firestore.collection('users').doc(uid).get();
-    final userData = userDoc.data() ?? {};
-    String firstName = userData['firstName'] ?? 'Unknown';
-    String lastName = userData['lastName'] ?? 'Unknown';
 
-    // Create a new Comment object
+    UserInfoModel userInfo = UserInfoModel.fromJson(userDoc.data() ?? {});
+
     Comment newComment = Comment(
       commentText: commentText,
       commentedBy: uid,
-      firstName: firstName,
-      lastName: lastName,
+      commentedUser: userInfo
     );
 
     // Update the comments field of the specified post
@@ -169,6 +166,62 @@ Future<void> addComment({
     emit(state.copyWith(isLoading: false, error: 'Failed to add comment: $e'));
   }
 }
+
+Future<void> deleteComment({
+  required String postId,
+  required String commentText,
+}) async {
+  emit(state.copyWith(isLoading: true));
+  try {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      emit(state.copyWith(isLoading: false, error: 'User not logged in'));
+      return;
+    }
+
+    String uid = currentUser.uid;
+
+    // Fetch the post document
+    DocumentSnapshot<Map<String, dynamic>> postDoc =
+        await _firestore.collection('posts').doc(postId).get();
+
+    if (!postDoc.exists) {
+      emit(state.copyWith(isLoading: false, error: 'Post not found'));
+      return;
+    }
+
+    // Extract the comments
+    List<dynamic> comments = postDoc.data()?['comments'] ?? [];
+
+    // Find the comment to delete
+    var commentToDelete;
+    for (var comment in comments) {
+      if (comment['commentText'] == commentText && comment['commentedBy'] == uid) {
+        commentToDelete = comment;
+        break;
+      }
+    }
+
+    if (commentToDelete == null) {
+      emit(state.copyWith(isLoading: false, error: 'Comment not found'));
+      return;
+    }
+
+    // Remove the comment
+    comments.remove(commentToDelete);
+
+    // Update the post document with the new comments list
+    await _firestore.collection('posts').doc(postId).update({
+      'comments': comments,
+    });
+
+    emit(state.copyWith(isLoading: false));
+    _fetchPostsAndUpdateCache(); // Refresh the list of posts to reflect the deletion
+  } catch (e) {
+    emit(state.copyWith(isLoading: false, error: 'Failed to delete comment: $e'));
+  }
+}
+
 
 
  Future<void> deletePost(String postId) async {
