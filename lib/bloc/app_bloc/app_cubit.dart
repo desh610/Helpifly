@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:helpifly/bloc/forum_bloc/forum_cubit.dart';
 import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/widgets/screen_loading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,7 +30,7 @@ class AppCubit extends Cubit<AppState> {
             chipSelectedCategory: "Institutes",
             userInfo: UserInfoModel(firstName: '', lastName: '', email: '', uid: '', profileUrl: ''), currentTabIndex: 0)) {
     _loadCategories();
-    _loadItems();
+    loadItems();
     _loadUserInfo();
     _loadSearchTextList(); // Load search text list during initialization
   }
@@ -78,7 +80,7 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-  Future<void> _loadItems() async {
+  Future<void> loadItems() async {
     emit(state.copyWith(isLoading: true));
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -483,6 +485,7 @@ Future<void> updateProfile({
   required String firstName,
   required String lastName,
   File? profileImage,
+  required BuildContext context,
   // required BuildContext context,
 }) async {
   try {
@@ -523,10 +526,13 @@ Future<void> updateProfile({
     String userInfoJson = jsonEncode(updatedUserInfoModel.toJson());
     await prefs.setString('user_info', userInfoJson);
 
+
+
     emit(state.copyWith(
       userInfo: updatedUserInfoModel,
       isLoading: false,
     ));
+    context.read<ForumCubit>().loadPosts();
     // Loading().stopLoading(context);
   } catch (e) {
     emit(state.copyWith(isLoading: false));

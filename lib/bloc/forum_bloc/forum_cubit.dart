@@ -11,7 +11,7 @@ class ForumCubit extends Cubit<ForumState> {
   static const String _cacheKey = 'cached_posts';
 
   ForumCubit() : super(ForumState(posts: [], isLoading: false, isFilterMyPosts: false, searchQuery: '')) {
-    _loadPosts();
+    loadPosts();
   }
 
     void setIsFiterMyPosts(bool isFilterMyPosts) {
@@ -64,7 +64,7 @@ Future<void> createPost({
 }
 
 
-  Future<void> _loadPosts() async {
+  Future<void> loadPosts() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? cachedPostsJson = prefs.getString(_cacheKey);
 

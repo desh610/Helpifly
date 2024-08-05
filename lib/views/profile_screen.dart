@@ -154,6 +154,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       firstName: _firstNameController.text,
                       lastName: _lastNameController.text,
                       profileImage: _profileImage,
+                      context: context
                     );
                   },
                   buttonText: 'Update',

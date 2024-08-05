@@ -8,9 +8,14 @@ import 'package:helpifly/views/home_screen.dart';
 import 'package:helpifly/views/profile_screen.dart';
 import 'package:helpifly/views/url_results_screen.dart';
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
   MainScreen({super.key});
 
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     UrlResultsScreen(),
@@ -20,6 +25,13 @@ class MainScreen extends StatelessWidget {
 
   void _onItemTapped(BuildContext context, int index) {
     context.read<AppCubit>().setCurrentTabIndex(index);
+  }
+
+    @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    context.read<AppCubit>().loadItems();
   }
 
   @override
