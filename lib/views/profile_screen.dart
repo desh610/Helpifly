@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:helpifly/bloc/app_bloc/app_cubit.dart';
 import 'package:helpifly/bloc/app_bloc/app_state.dart';
+import 'package:helpifly/models/user_info_model.dart';
 import 'package:helpifly/widgets/alerts.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/views/login_screen.dart';
@@ -20,64 +24,33 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
 
-  String _originalFirstName = '';
-  String _originalLastName = '';
-  bool _isButtonEnabled = false;
+  File? _profileImage;
 
   @override
   void initState() {
     super.initState();
-    _loadUserInfo();
-    _firstNameController.addListener(_checkButtonEnable);
-    _lastNameController.addListener(_checkButtonEnable);
+    setInitialValues();
   }
 
-  @override
-  void dispose() {
-    _firstNameController.removeListener(_checkButtonEnable);
-    _lastNameController.removeListener(_checkButtonEnable);
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    super.dispose();
-  }
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-  Future<void> _loadUserInfo() async {
-    try {
-      User? currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser != null) {
-        DocumentSnapshot userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUser.uid)
-            .get();
-
-        if (userDoc.exists) {
-          var userData = userDoc.data() as Map<String, dynamic>;
-          String firstName = userData['firstName'] ?? '';
-          String lastName = userData['lastName'] ?? '';
-
-          _originalFirstName = firstName;
-          _originalLastName = lastName;
-
-          _firstNameController.text = firstName;
-          _lastNameController.text = lastName;
-          _checkButtonEnable();
-        }
-      }
-    } catch (e) {
-      showAlert(context, 'Error loading user info', red);
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text('Error loading user info: ${e.toString()}')),
-      // );
+    if (pickedFile != null) {
+      setState(() {
+        _profileImage = File(pickedFile.path);
+      });
     }
   }
 
-  void _checkButtonEnable() {
+  void setInitialValues() {
+    UserInfoModel userInfo = BlocProvider.of<AppCubit>(context).state.userInfo;
     setState(() {
-      _isButtonEnabled = _firstNameController.text.trim().isNotEmpty &&
-                         _lastNameController.text.trim().isNotEmpty &&
-                         (_firstNameController.text.trim() != _originalFirstName ||
-                          _lastNameController.text.trim() != _originalLastName);
+      _firstNameController.text = userInfo.firstName;
+      _lastNameController.text = userInfo.lastName;
+      _emailController.text = userInfo.email;
     });
   }
 
@@ -97,108 +70,100 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context.read<AppCubit>().setCurrentTabIndex(0);
     } catch (e) {
       showAlert(context, 'Error signing out', red);
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text('Error signing out: ${e.toString()}')),
-      // );
-    }
-  }
-
-  Future<void> _updateProfile(BuildContext context) async {
-    String firstName = _firstNameController.text.trim();
-    String lastName = _lastNameController.text.trim();
-
-    if (firstName.isEmpty || lastName.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('First name and last name cannot be empty')),
-      );
-      return;
-    }
-
-    try {
-      User? currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User not logged in')),
-        );
-        return;
-      }
-
-      String uid = currentUser.uid;
-
-      await FirebaseFirestore.instance.collection('users').doc(uid).update({
-        'firstName': firstName,
-        'lastName': lastName,
-      });
-
-      // Update the user info in AppCubit
-      context.read<AppCubit>().updateUserInfo(firstName, lastName);
-
-      showAlert(context, 'Profile updated successfully', green);
-
-      _originalFirstName = firstName;
-      _originalLastName = lastName;
-      _checkButtonEnable();
-    } catch (e) {
-      showAlert(context, 'Error updating profile', red);
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text('Error updating profile: ${e.toString()}')),
-      // );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AppCubit, AppState>(
-      listener: (context, state) {
-        if (state.userInfo.firstName != _firstNameController.text ||
-            state.userInfo.lastName != _lastNameController.text) {
-          _firstNameController.text = state.userInfo.firstName;
-          _lastNameController.text = state.userInfo.lastName;
-          _originalFirstName = state.userInfo.firstName;
-          _originalLastName = state.userInfo.lastName;
-          _checkButtonEnable();
-        }
-      },
-      child: Scaffold(
-        backgroundColor: primaryColor,
-        appBar: AppBar(
-          backgroundColor: inCardColor,
-          title: const Text('Profile'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () => _logout(context),
-            ),
-          ],
-        ),
-        body: Container(
-          padding: EdgeInsets.only(left: 15, right: 15, top: 10),
-          child: Column(
-            children: [
-              SizedBox(height: 25),
-              CustomTextField(
-                controller: _firstNameController,
-                hintText: "Enter your first name",
-                overlineText: "First Name",
+    return BlocBuilder<AppCubit, AppState>(
+      builder: (context, state) {
+        return Scaffold(
+          resizeToAvoidBottomInset: true, // Allow resizing when keyboard appears
+          backgroundColor: primaryColor,
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            backgroundColor: inCardColor,
+            title: const Text('Profile'),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: () => _logout(context),
               ),
-              SizedBox(height: 15),
-              CustomTextField(
-                controller: _lastNameController,
-                hintText: "Enter your last name",
-                overlineText: "Last Name",
-              ),
-              SizedBox(height: 15),
-              Spacer(),
-              CustomButton(
-                onTap: () => _updateProfile(context),
-                buttonText: 'Update',
-                enabled: _isButtonEnabled,
-              ),
-              SizedBox(height: 15),
             ],
           ),
-        ),
-      ),
+          body: SingleChildScrollView( // Wrap with SingleChildScrollView
+            padding: EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 20),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: Row(
+                    children: [
+                      Container(
+                        height: 80,
+                        width: 80,
+                        decoration: BoxDecoration(
+                          color: cardColor,
+                          shape: BoxShape.circle,
+                          image: _profileImage != null
+                              ? DecorationImage(
+                                  image: FileImage(_profileImage!),
+                                  fit: BoxFit.cover,
+                                )
+                              : DecorationImage(
+                                  image: state.userInfo.profileUrl.isNotEmpty
+                                      ? NetworkImage(state.userInfo.profileUrl)
+                                      : AssetImage('assets/images/default_profile.jpg')
+                                          as ImageProvider,
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+                      ),
+                      SizedBox(width: 15),
+                      Text(
+                        "Tap to update profile image",
+                        style: TextStyle(fontSize: 14, color: grayColor),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 25),
+                CustomTextField(
+                  controller: _firstNameController,
+                  hintText: "Enter your first name",
+                  overlineText: "First Name",
+                ),
+                SizedBox(height: 15),
+                CustomTextField(
+                  controller: _lastNameController,
+                  hintText: "Enter your last name",
+                  overlineText: "Last Name",
+                ),
+                SizedBox(height: 15),
+                CustomTextField(
+                  controller: _emailController,
+                  hintText: "Enter your email",
+                  overlineText: "Email",
+                  enabled: false,
+                ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.28),
+                CustomButton(
+                  onTap: () {
+                    context.read<AppCubit>().updateProfile(
+                      firstName: _firstNameController.text,
+                      lastName: _lastNameController.text,
+                      profileImage: _profileImage,
+                    );
+                  },
+                  buttonText: 'Update',
+                ),
+                SizedBox(height: 15),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

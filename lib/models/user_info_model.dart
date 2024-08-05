@@ -3,12 +3,14 @@ class UserInfoModel {
   final String lastName;
   final String email;
   final String uid;
+  final String profileUrl;
 
   UserInfoModel({
     required this.firstName,
     required this.lastName,
     required this.email,
     required this.uid,
+    required this.profileUrl,
   });
 
   factory UserInfoModel.fromJson(Map<String, dynamic> json) {
@@ -17,6 +19,7 @@ class UserInfoModel {
       lastName: json['lastName'],
       email: json['email'],
       uid: json['uid'],
+      profileUrl: json['profileUrl'],
     );
   }
 
@@ -26,6 +29,7 @@ class UserInfoModel {
       'lastName': lastName,
       'email': email,
       'uid': uid,
+      'profileUrl': profileUrl,
     };
   }
 
@@ -34,12 +38,14 @@ class UserInfoModel {
     String? lastName,
     String? email,
     String? uid,
+    String? profileUrl,
   }) {
     return UserInfoModel(
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       email: email ?? this.email,
       uid: uid ?? this.uid,
+      profileUrl: profileUrl ?? this.profileUrl,
     );
   }
 }

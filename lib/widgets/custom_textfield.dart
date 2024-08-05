@@ -43,20 +43,20 @@ class CustomTextField extends StatelessWidget {
               overlineText,
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: white),
             ),
-              if (buttonText != null) // Conditionally show the button if buttonText is not null
-          TextButton(
-            onPressed: onTapTextButton,
-            child: Text(
-              buttonText!,
-              style: TextStyle(color: white),
-            ),
-          ),
+            if (buttonText != null) // Conditionally show the button if buttonText is not null
+              TextButton(
+                onPressed: onTapTextButton,
+                child: Text(
+                  buttonText!,
+                  style: TextStyle(color: white),
+                ),
+              ),
           ],
         ),
         SizedBox(
           child: Container(
             decoration: BoxDecoration(
-              color: backgroundColor,
+              color: enabled ? backgroundColor : Colors.grey.shade700, // Change background color when disabled
               borderRadius: BorderRadius.circular(borderRadius),
               border: Border.all(color: borderColor),
             ),
@@ -75,12 +75,11 @@ class CustomTextField extends StatelessWidget {
               obscureText: obscureText,
               textAlignVertical: TextAlignVertical.center,
               cursorColor: white,
-              style: const TextStyle(color: white),
+              style: TextStyle(color: enabled ? white : Colors.grey), // Change text color when disabled
               enabled: enabled, // Use enabled property here
             ),
           ),
         ),
-      
       ],
     );
   }

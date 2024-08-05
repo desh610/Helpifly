@@ -38,32 +38,37 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
       height: MediaQuery.of(context).size.height - 150,
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pop();
-                },
-                child: Icon(Icons.arrow_back_ios_new_rounded,
-                    color: Colors.transparent, size: 20),
-              ),
-              Text(
-                "Add review for ${widget.item.title}",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: white,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pop();
-                },
-                child: Icon(Icons.close_rounded, color: grayColor, size: 24),
-              ),
-            ],
-          ),
+         Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    GestureDetector(
+      onTap: () {
+        Navigator.of(context).pop();
+      },
+      child: Icon(Icons.arrow_back_ios_new_rounded,
+          color: Colors.transparent, size: 20),
+    ),
+    Expanded(
+      child: Text(
+        "Add review for ${widget.item.title}",
+        style: TextStyle(
+          fontSize: 16,
+          color: white,
+          fontWeight: FontWeight.w500,
+        ),
+        textAlign: TextAlign.center, // Center the text if needed
+        overflow: TextOverflow.ellipsis, // Add ellipsis for overflowed text
+      ),
+    ),
+    GestureDetector(
+      onTap: () {
+        Navigator.of(context).pop();
+      },
+      child: Icon(Icons.close_rounded, color: grayColor, size: 24),
+    ),
+  ],
+),
+
           SizedBox(height: 10),
           Text(
             "Your valuable review supports ranking this product or service. You can add a maximum of 3 reviews per item.",

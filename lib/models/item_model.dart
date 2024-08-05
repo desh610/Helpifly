@@ -44,6 +44,7 @@ class ItemModel {
   final int credit;
   final String type;
   final List<Review> reviews;
+  final String imageUrl;
 
   ItemModel({
     required this.id,
@@ -54,6 +55,7 @@ class ItemModel {
     required this.credit,
     required this.type,
     required this.reviews,
+    required this.imageUrl,
   });
 
   factory ItemModel.fromJson(Map<String, dynamic> json) {
@@ -61,6 +63,7 @@ class ItemModel {
       id: json['id'],
       title: json['title'],
       title2: json['title2'],
+      imageUrl: json['imageUrl'],
       description: json['description'],
       category: json['category'],
       credit: json['credit'] is int ? json['credit'] : (json['credit'] as double).toInt(),
@@ -85,6 +88,7 @@ class ItemModel {
       'credit': credit,
       'type': type,
       'reviews': reviews.map((review) => review.toJson()).toList(),
+      'imageUrl': imageUrl,
     };
   }
 
@@ -98,6 +102,7 @@ class ItemModel {
     int? credit,
     String? type,
     List<Review>? reviews,
+    String? imageUrl,
   }) {
     return ItemModel(
       id: id ?? this.id,
@@ -108,6 +113,7 @@ class ItemModel {
       credit: credit ?? this.credit,
       type: type ?? this.type,
       reviews: reviews ?? this.reviews,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 }

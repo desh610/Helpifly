@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:helpifly/bloc/signup_bloc/signup_cubit.dart';
@@ -5,15 +7,38 @@ import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/views/home_screen.dart'; // Import your HomeScreen
 import 'package:helpifly/views/login_screen.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
+import 'package:image_picker/image_picker.dart';
 
-class SignupScreen extends StatelessWidget {
+class SignupScreen extends StatefulWidget {
   SignupScreen({super.key});
 
+  @override
+  State<SignupScreen> createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _firstNameController = TextEditingController();
+
   final TextEditingController _lastNameController = TextEditingController();
+
   final TextEditingController _emailController = TextEditingController();
+
   final TextEditingController _passwordController = TextEditingController();
+
   final TextEditingController _confirmPasswordController = TextEditingController();
+
+   File? _profileImage;
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _profileImage = File(pickedFile.path);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,34 +60,53 @@ class SignupScreen extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 4),
-              Row(
+              Wrap(
                 children: const [
-                  Text("Explore your journey with Helpifly!",
+                  Text("Explore your journey with Helpifly!, Explore your journey with Helpifly! Explore your journey with Helpifly!",
                       style: TextStyle(
                           fontSize: 14,
                           color: grayColor,
                           fontWeight: FontWeight.w400,
-                          letterSpacing: 1.6)),
+                          letterSpacing: 1)),
                 ],
               ),
               SizedBox(height: 25),
-              Row(
-                children: [
-                  Container(
-                    height: 90,
-                    width: 90,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: cardColor,
+             GestureDetector(
+                      onTap: _pickImage,
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 80,
+                            width: 80,
+                            decoration: BoxDecoration(
+                              color: cardColor,
+                              // borderRadius: BorderRadius.circular(12),
+                              shape: BoxShape.circle,
+                              image: _profileImage != null
+                                  ? DecorationImage(
+                                      image: FileImage(_profileImage!),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : null,
+                            ),
+                            child: _profileImage == null
+                                ? Center(
+                                    child: Icon(
+                                      Icons.camera_alt_rounded,
+                                      color: grayColor,
+                                      size: 26,
+                                    ),
+                                  )
+                                : null,
+                          ),
+                          SizedBox(width: 15),
+                          Text(
+                            "Tap to set profile logo",
+                            style: TextStyle(fontSize: 14, color: grayColor),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Center(
-                      child: Icon(Icons.camera_alt_rounded, size: 28, color: grayColor),
-                    ),
-                  ),
-                  SizedBox(width: 15),
-                  Text("Add profile image", style: TextStyle(color: grayColor, fontSize: 18),)
-                ],
-              ),
               SizedBox(height: 25),
               CustomTextField(controller: _firstNameController, hintText: "Enter your first name", overlineText: "First Name"),
               SizedBox(height: 15),
@@ -109,7 +153,7 @@ class SignupScreen extends StatelessWidget {
                       }
 
                       // Call signup method
-                      cubit.signup(context, firstName, lastName, email, password);
+                      cubit.signup(context, firstName, lastName, email, password, _profileImage);
                     },
                     buttonText: state.isLoading ? 'Signing up...' : 'Signup',
                   );
