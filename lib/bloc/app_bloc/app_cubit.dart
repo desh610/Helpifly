@@ -21,7 +21,7 @@ class AppCubit extends Cubit<AppState> {
             services: [],
             isLoading: false,
             chipSelectedCategory: "Institutes",
-            userInfo: UserInfoModel(firstName: '', lastName: '', email: '', uid: ''), currentTabIndex: 0)) {
+            userInfo: UserInfoModel(firstName: '', lastName: '', email: '', uid: '', profileUrl: ''), currentTabIndex: 0)) {
     _loadCategories();
     _loadItems();
     _loadUserInfo();
@@ -143,7 +143,7 @@ class AppCubit extends Cubit<AppState> {
         emit(state.copyWith(userInfo: userInfo));
       } catch (e) {
         // Handle JSON decode error
-        emit(state.copyWith(userInfo: UserInfoModel(firstName: 'User', lastName: '', email: '', uid: '')));
+        emit(state.copyWith(userInfo: UserInfoModel(firstName: 'User', lastName: '', email: '', uid: '', profileUrl: '')));
         print('Error decoding user info: $e');
       }
     } else {
@@ -166,12 +166,12 @@ class AppCubit extends Cubit<AppState> {
           emit(state.copyWith(userInfo: userInfo));
         } else {
           emit(state.copyWith(
-              userInfo: UserInfoModel(firstName: 'User', lastName: '', email: '', uid: ''),
+              userInfo: UserInfoModel(firstName: 'User', lastName: '', email: '', uid: '', profileUrl: ''),
               error: 'User document does not exist'));
         }
       } else {
         emit(state.copyWith(
-            userInfo: UserInfoModel(firstName: 'User', lastName: '', email: '', uid: ''),
+            userInfo: UserInfoModel(firstName: 'User', lastName: '', email: '', uid: '', profileUrl: ''),
             error: 'No logged-in user'));
       }
     } catch (e) {
