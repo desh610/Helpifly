@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/widgets/screen_loading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:helpifly/models/user_info_model.dart';
@@ -86,7 +87,20 @@ class AppCubit extends Cubit<AppState> {
       if (cachedItems != null) {
         List<dynamic> cachedList = jsonDecode(cachedItems);
         List<ItemModel> items = cachedList.map((item) => ItemModel.fromJson(item)).toList();
-        emit(state.copyWith(items: items, isLoading: false));
+        List<ItemModel> products = cachedList
+        .where((item) => item['type'] == 'Product') // Filter items where type is 'Product'
+        .map((item) => ItemModel.fromJson(item))
+        .toList();
+        List<ItemModel> services = cachedList
+        .where((item) => item['type'] == 'Service') // Filter items where type is 'Product'
+        .map((item) => ItemModel.fromJson(item))
+        .toList();
+
+         // Sort products and services by credit in descending order
+      products.sort((a, b) => b.credit.compareTo(a.credit));
+      services.sort((a, b) => b.credit.compareTo(a.credit));
+      
+        emit(state.copyWith(items: items, products: products, services: services, isLoading: false));
         // Fetch from Firestore to update cache (if needed)
         _fetchItemsFromFirestore();
       } else {
