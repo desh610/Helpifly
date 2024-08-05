@@ -26,15 +26,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
-    File? _profileImage;
+  File? _profileImage;
 
-      @override
+  @override
   void initState() {
     super.initState();
     setInitialValues();
   }
 
-      Future<void> _pickImage() async {
+  Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
@@ -45,7 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-    void setInitialValues() {
+  void setInitialValues() {
     UserInfoModel userInfo = BlocProvider.of<AppCubit>(context).state.userInfo;
     setState(() {
       _firstNameController.text = userInfo.firstName;
@@ -53,7 +53,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _emailController.text = userInfo.email;
     });
   }
-
 
   Future<void> _logout(BuildContext context) async {
     try {
@@ -79,6 +78,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return BlocBuilder<AppCubit, AppState>(
       builder: (context, state) {
         return Scaffold(
+          resizeToAvoidBottomInset: true, // Allow resizing when keyboard appears
           backgroundColor: primaryColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
@@ -91,8 +91,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ],
           ),
-          body: Container(
-            padding: EdgeInsets.only(left: 15, right: 15, top: 10),
+          body: SingleChildScrollView( // Wrap with SingleChildScrollView
+            padding: EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 20),
             child: Column(
               children: [
                 const SizedBox(height: 20),
@@ -114,8 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               : DecorationImage(
                                   image: state.userInfo.profileUrl.isNotEmpty
                                       ? NetworkImage(state.userInfo.profileUrl)
-                                      : AssetImage(
-                                              'assets/images/default_profile.jpg')
+                                      : AssetImage('assets/images/default_profile.jpg')
                                           as ImageProvider,
                                   fit: BoxFit.cover,
                                 ),
@@ -148,17 +147,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   overlineText: "Email",
                   enabled: false,
                 ),
-                SizedBox(height: 15),
-                Spacer(),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.28),
                 CustomButton(
-                  // onTap: () => _updateProfile(context),
                   onTap: () {
                     context.read<AppCubit>().updateProfile(
-                        firstName: _firstNameController.text,
-                        lastName: _lastNameController.text,
-                        profileImage: _profileImage,
-                        // context: context,
-                      );
+                      firstName: _firstNameController.text,
+                      lastName: _lastNameController.text,
+                      profileImage: _profileImage,
+                    );
                   },
                   buttonText: 'Update',
                 ),
