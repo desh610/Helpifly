@@ -17,15 +17,15 @@ class UrlResultsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: primaryColor,
-      body: GestureDetector(
-        onTap: () {
-          closeKeyboard(context); // Close the keyboard when tapping outside
-        },
-        child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
+    return GestureDetector(
+      onTap: () => closeKeyboard(context),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: primaryColor,
+        body: GestureDetector(
+          onTap: () {
+            closeKeyboard(context); // Close the keyboard when tapping outside
+          },
           child: Padding(
             padding: EdgeInsets.only(left: 15, right: 15, top: 40),
             child: Column(
@@ -123,7 +123,8 @@ class UrlResultsScreen extends StatelessWidget {
                     );
                   },
                 ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.07),
+                // SizedBox(height: MediaQuery.of(context).size.height * 0.07),
+                Spacer(),
                 BlocBuilder<UrlResultsCubit, UrlResultsState>(
                   builder: (context, state) {
                     return ValueListenableBuilder(
@@ -141,7 +142,7 @@ class UrlResultsScreen extends StatelessWidget {
                     );
                   },
                 ),
-                SizedBox(height: 15),
+                SizedBox(height: 15,)
               ],
             ),
           ),
