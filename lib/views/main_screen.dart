@@ -6,6 +6,7 @@ import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/views/forum_screen.dart';
 import 'package:helpifly/views/home_screen.dart';
 import 'package:helpifly/views/profile_screen.dart';
+import 'package:helpifly/views/requests_screen.dart';
 import 'package:helpifly/views/url_results_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -20,6 +21,7 @@ class _MainScreenState extends State<MainScreen> {
     const HomeScreen(),
     UrlResultsScreen(),
     ForumScreen(),
+    RequestsScreen(),
     ProfileScreen(),
   ];
 
@@ -32,6 +34,7 @@ class _MainScreenState extends State<MainScreen> {
     // TODO: implement initState
     super.initState();
     context.read<AppCubit>().loadItems();
+    context.read<AppCubit>().loadRequests();
   }
 
   @override
@@ -57,6 +60,10 @@ class _MainScreenState extends State<MainScreen> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.forum),
                 label: 'Forum',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.request_page_rounded),
+                label: 'Requests',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person),

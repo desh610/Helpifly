@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:helpifly/bloc/forum_bloc/forum_cubit.dart';
 import 'package:helpifly/constants/colors.dart';
+import 'package:helpifly/models/request_model.dart';
 import 'package:helpifly/widgets/screen_loading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:helpifly/models/user_info_model.dart';
@@ -28,9 +29,10 @@ class AppCubit extends Cubit<AppState> {
             services: [],
             isLoading: false,
             chipSelectedCategory: "Institutes",
-            userInfo: UserInfoModel(firstName: '', lastName: '', email: '', uid: '', profileUrl: ''), currentTabIndex: 0)) {
+            userInfo: UserInfoModel(firstName: '', lastName: '', email: '', uid: '', profileUrl: ''), currentTabIndex: 0, requests: [])) {
     _loadCategories();
     loadItems();
+    loadRequests();
     _loadUserInfo();
     _loadSearchTextList(); // Load search text list during initialization
   }
@@ -543,6 +545,133 @@ Future<void> updateProfile({
 }
 
 
+  Future<String> _uploadRequestImage(String id, File profileImage) async {
+  try {
+    // Load the image
+    img.Image? image = img.decodeImage(profileImage.readAsBytesSync());
+    
+    // Resize the image to a smaller size
+    img.Image resizedImage = img.copyResize(image!, width: 100); // Resize to 100 pixels wide (maintaining aspect ratio)
+    
+    // Compress the image to reduce file size
+    List<int> compressedImage = img.encodeJpg(resizedImage, quality: 50); // Adjust quality as needed
+    
+    // Convert to Uint8List
+    Uint8List uint8list = Uint8List.fromList(compressedImage);
+
+    // Upload the compressed image
+    String filePath = 'requestImages/$id.png';
+    await FirebaseStorage.instance.ref(filePath).putData(uint8list);
+    String downloadUrl = await FirebaseStorage.instance.ref(filePath).getDownloadURL();
+    return downloadUrl;
+  } catch (e) {
+    throw Exception('Error uploading image: $e');
+  }
+}
+
+ Future<void> requestItem({
+  required String mainTitle,
+  required String secondaryTitle,
+  required String description,
+  required String type,
+  required String category,
+  File? requestImage,
+  required BuildContext context,
+}) async {
+  emit(state.copyWith(isLoading: true));
+  try {
+
+    // Generate a new document reference and get its ID
+    DocumentReference docRef = FirebaseFirestore.instance.collection('requests').doc();
+    String generatedId = docRef.id;
+
+        // Upload item image if available
+    String? requestImageUrl;
+    if (requestImage != null) {
+      requestImageUrl = await _uploadRequestImage(generatedId, requestImage);
+    }
+
+
+    // Create ItemModel object with the generated ID
+    RequestModel requestModel = RequestModel(
+      id: generatedId, // Set the generated ID here
+      title: mainTitle,
+      title2: secondaryTitle,
+      description: description,
+      category: category,
+      credit: 0,
+      imageUrl: requestImageUrl ?? '',
+      reviews: [],
+      type: type, 
+      status: 'pending',
+    );
+
+    // Save item info to Firestore with the generated ID
+    await docRef.set(requestModel.toJson());
+
+    // Save item info to SharedPreferences as a JSON string
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String requestInfoJson = jsonEncode(requestModel.toJson());
+    await prefs.setString('requests', requestInfoJson);
+
+    emit(state.copyWith(isLoading: false));
+    print('Item added successfully!');
+    // _fetchItemsFromFirestore();
+  } on FirebaseAuthException catch (e) {
+    emit(state.copyWith(isLoading: false));
+    print('FirebaseAuthException: ${e.message}');
+  } catch (e) {
+    emit(state.copyWith(isLoading: false));
+    print('Error: $e');
+  }
+}
+
+Future<void> loadRequests() async {
+    emit(state.copyWith(isLoading: true));
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cachedItems = prefs.getString('requests');
+
+      if (cachedItems != null) {
+        List<dynamic> cachedList = jsonDecode(cachedItems);
+        List<RequestModel> requests = cachedList.map((item) => RequestModel.fromJson(item)).toList();
+       
+      
+        emit(state.copyWith(requests: requests, isLoading: false));
+        // Fetch from Firestore to update cache (if needed)
+        _fetchRequestsFromFirestore();
+      } else {
+        _fetchRequestsFromFirestore(); // Fetch from Firestore if not cached
+      }
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: 'Failed to load items: $e'));
+    }
+  }
+
+  Future<void> _fetchRequestsFromFirestore() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await _firestore.collection('requests').get();
+
+      List<RequestModel> requests = querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        return RequestModel.fromJson(data);
+      }).toList();
+
+      // Cache items
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('requests', jsonEncode(requests.map((item) => item.toJson()).toList()));
+
+      // Emit the updated state with filtered and sorted lists
+      emit(state.copyWith(
+          requests: requests,
+          isLoading: false));
+
+    } catch (e) {
+      emit(state.copyWith(
+          isLoading: false, error: 'Failed to fetch items from Firestore: $e'));
+    }
+  }
 
 
 }

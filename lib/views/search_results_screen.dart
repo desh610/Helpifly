@@ -284,6 +284,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                   label: 'Forum',
                 ),
                 BottomNavigationBarItem(
+                icon: Icon(Icons.request_page_rounded),
+                label: 'Requests',
+              ),
+                BottomNavigationBarItem(
                   icon: Icon(Icons.person),
                   label: 'Profile',
                 ),
