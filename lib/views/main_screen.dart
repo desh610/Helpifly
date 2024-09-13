@@ -6,20 +6,35 @@ import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/views/forum_screen.dart';
 import 'package:helpifly/views/home_screen.dart';
 import 'package:helpifly/views/profile_screen.dart';
+import 'package:helpifly/views/requests_screen.dart';
 import 'package:helpifly/views/url_results_screen.dart';
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
   MainScreen({super.key});
 
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     UrlResultsScreen(),
     ForumScreen(),
+    RequestsScreen(),
     ProfileScreen(),
   ];
 
   void _onItemTapped(BuildContext context, int index) {
     context.read<AppCubit>().setCurrentTabIndex(index);
+  }
+
+    @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    context.read<AppCubit>().loadItems();
+    context.read<AppCubit>().loadRequests();
   }
 
   @override
@@ -45,6 +60,10 @@ class MainScreen extends StatelessWidget {
               BottomNavigationBarItem(
                 icon: Icon(Icons.forum),
                 label: 'Forum',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.request_page_rounded),
+                label: 'Requests',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person),

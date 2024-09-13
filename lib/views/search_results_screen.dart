@@ -196,6 +196,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                           return GestureDetector(
                             onTap: () => _showAddReviewBottomSheet(context, item),
                             child: Container(
+                              padding: EdgeInsets.only(left: 4),
                               margin: EdgeInsets.only(bottom: 12),
                               height: 100,
                               width: MediaQuery.of(context).size.width,
@@ -282,6 +283,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                   icon: Icon(Icons.forum),
                   label: 'Forum',
                 ),
+                BottomNavigationBarItem(
+                icon: Icon(Icons.request_page_rounded),
+                label: 'Requests',
+              ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.person),
                   label: 'Profile',

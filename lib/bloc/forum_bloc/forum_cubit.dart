@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:helpifly/models/user_info_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:helpifly/models/post_model.dart';
 import 'forum_state.dart';
@@ -11,7 +12,7 @@ class ForumCubit extends Cubit<ForumState> {
   static const String _cacheKey = 'cached_posts';
 
   ForumCubit() : super(ForumState(posts: [], isLoading: false, isFilterMyPosts: false, searchQuery: '')) {
-    _loadPosts();
+    loadPosts();
   }
 
     void setIsFiterMyPosts(bool isFilterMyPosts) {
@@ -37,12 +38,18 @@ Future<void> createPost({
     
     String createdBy = currentUser.uid; // Get the UID
 
+    // Fetch user info for the current user
+    DocumentSnapshot<Map<String, dynamic>> userDoc =
+        await _firestore.collection('users').doc(createdBy).get();
+    UserInfoModel userInfo = UserInfoModel.fromJson(userDoc.data() ?? {});
+
     DocumentReference docRef = await _firestore.collection('posts').add({
       'title': title,
       'description': description,
       'createdAt': FieldValue.serverTimestamp(),
       'createdBy': createdBy,
       'comments': [], // Initially empty array
+      'createdUser': userInfo.toJson(),
     });
 
     PostModel newPost = PostModel(
@@ -52,6 +59,7 @@ Future<void> createPost({
       createdAt: Timestamp.now(),
       createdBy: createdBy,
       comments: [],
+       createdUser: userInfo,
     );
 
     await docRef.update({'id': docRef.id});
@@ -64,7 +72,7 @@ Future<void> createPost({
 }
 
 
-  Future<void> _loadPosts() async {
+  Future<void> loadPosts() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? cachedPostsJson = prefs.getString(_cacheKey);
 
@@ -95,14 +103,16 @@ Future<void> _fetchPostsAndUpdateCache() async {
       // Fetch user info for each post
       DocumentSnapshot<Map<String, dynamic>> userDoc =
           await _firestore.collection('users').doc(createdBy).get();
-      final userData = userDoc.data() ?? {};
-      String firstName = userData['firstName'] ?? '';
-      String lastName = userData['lastName'] ?? '';
+          UserInfoModel userInfo = UserInfoModel.fromJson(userDoc.data() ?? {});
+      // final userData = userDoc.data() ?? {};
+      // String firstName = userData['firstName'] ?? '';
+      // String lastName = userData['lastName'] ?? '';
 
       // Create PostModel with additional fields
       PostModel post = PostModel.fromJson(data, doc.id).copyWith(
-        firstName: firstName,
-        lastName: lastName,
+        // firstName: firstName,
+        // lastName: lastName,
+         createdUser: userInfo,
       );
 
       posts.add(post);
@@ -136,16 +146,13 @@ Future<void> addComment({
     // Fetch user information
     DocumentSnapshot<Map<String, dynamic>> userDoc =
         await _firestore.collection('users').doc(uid).get();
-    final userData = userDoc.data() ?? {};
-    String firstName = userData['firstName'] ?? 'Unknown';
-    String lastName = userData['lastName'] ?? 'Unknown';
 
-    // Create a new Comment object
+    UserInfoModel userInfo = UserInfoModel.fromJson(userDoc.data() ?? {});
+
     Comment newComment = Comment(
       commentText: commentText,
       commentedBy: uid,
-      firstName: firstName,
-      lastName: lastName,
+      commentedUser: userInfo
     );
 
     // Update the comments field of the specified post
@@ -159,6 +166,62 @@ Future<void> addComment({
     emit(state.copyWith(isLoading: false, error: 'Failed to add comment: $e'));
   }
 }
+
+Future<void> deleteComment({
+  required String postId,
+  required String commentText,
+}) async {
+  emit(state.copyWith(isLoading: true));
+  try {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      emit(state.copyWith(isLoading: false, error: 'User not logged in'));
+      return;
+    }
+
+    String uid = currentUser.uid;
+
+    // Fetch the post document
+    DocumentSnapshot<Map<String, dynamic>> postDoc =
+        await _firestore.collection('posts').doc(postId).get();
+
+    if (!postDoc.exists) {
+      emit(state.copyWith(isLoading: false, error: 'Post not found'));
+      return;
+    }
+
+    // Extract the comments
+    List<dynamic> comments = postDoc.data()?['comments'] ?? [];
+
+    // Find the comment to delete
+    var commentToDelete;
+    for (var comment in comments) {
+      if (comment['commentText'] == commentText && comment['commentedBy'] == uid) {
+        commentToDelete = comment;
+        break;
+      }
+    }
+
+    if (commentToDelete == null) {
+      emit(state.copyWith(isLoading: false, error: 'Comment not found'));
+      return;
+    }
+
+    // Remove the comment
+    comments.remove(commentToDelete);
+
+    // Update the post document with the new comments list
+    await _firestore.collection('posts').doc(postId).update({
+      'comments': comments,
+    });
+
+    emit(state.copyWith(isLoading: false));
+    _fetchPostsAndUpdateCache(); // Refresh the list of posts to reflect the deletion
+  } catch (e) {
+    emit(state.copyWith(isLoading: false, error: 'Failed to delete comment: $e'));
+  }
+}
+
 
 
  Future<void> deletePost(String postId) async {

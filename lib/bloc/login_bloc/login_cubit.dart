@@ -22,7 +22,7 @@ class LoginCubit extends Cubit<LoginState> {
     required String password,
   }) async {
     emit(state.copyWith(isLoading: true));
-    Loading().startLoading(context);
+    // Loading().startLoading(context);
     try {
       UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email.trim(),
@@ -39,7 +39,7 @@ class LoginCubit extends Cubit<LoginState> {
           String userInfoJson = jsonEncode(userInfo.toJson());
           await prefs.setString('user_info', userInfoJson);
 
-           Loading().stopLoading(context);
+          //  Loading().stopLoading(context);
 
           Navigator.pushReplacement(
             context,

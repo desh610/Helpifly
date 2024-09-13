@@ -1,16 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:helpifly/models/user_info_model.dart';
 
 class Comment {
   final String commentText;
   final String commentedBy;
   final String? firstName;
   final String? lastName;
+   UserInfoModel? commentedUser;
 
   Comment({
     required this.commentText,
     required this.commentedBy,
     this.firstName,
     this.lastName,
+    this.commentedUser,
   });
 
   // Convert Comment to JSON
@@ -20,6 +23,7 @@ class Comment {
       'commentedBy': commentedBy,
       'firstName': firstName ?? "",
       'lastName': lastName ?? "",
+       'commentedUser': commentedUser?.toJson(),  // Handle potential null value
     };
   }
 
@@ -29,6 +33,9 @@ class Comment {
       commentedBy: json['commentedBy'],
       firstName: json['firstName'] ?? "",
       lastName: json['lastName'] ?? "",
+       commentedUser: json['commentedUser'] != null
+          ? UserInfoModel.fromJson(json['commentedUser'])
+          : null,  // Handle potential null value
     );
   }
 }
@@ -43,6 +50,7 @@ class PostModel {
   final List<Comment> comments;
   String? firstName; // Changed to non-final
   String? lastName;  // Changed to non-final
+   UserInfoModel? createdUser;
 
   PostModel({
     required this.id,
@@ -53,6 +61,7 @@ class PostModel {
     required this.comments,
     this.firstName,
     this.lastName,
+        this.createdUser,
   });
 
   // Convert PostModel to JSON
@@ -66,6 +75,7 @@ class PostModel {
       'comments': comments.map((comment) => comment.toJson()).toList(), // Serialize list of comments
       'firstName': firstName, // Serialize new fields
       'lastName': lastName,   // Serialize new fields
+       'createdUser': createdUser?.toJson(),  // Handle potential null value
     };
   }
 
@@ -81,6 +91,9 @@ class PostModel {
       comments: (json['comments'] as List<dynamic>?)?.map((item) => Comment.fromJson(item as Map<String, dynamic>)).toList() ?? [], // Handle list of comments
       firstName: json['firstName'] as String?, // Handle new fields
       lastName: json['lastName'] as String?,  // Handle new fields
+            createdUser: json['createdUser'] != null
+          ? UserInfoModel.fromJson(json['createdUser'])
+          : null,  // Handle potential null value
     );
   }
 
@@ -94,6 +107,7 @@ class PostModel {
     List<Comment>? comments,
     String? firstName,
     String? lastName,
+      UserInfoModel? createdUser,
   }) {
     return PostModel(
       id: id ?? this.id,
@@ -104,6 +118,7 @@ class PostModel {
       comments: comments ?? this.comments,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
+      createdUser: createdUser ?? this.createdUser,
     );
   }
 }

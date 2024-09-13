@@ -33,7 +33,7 @@ class SignupCubit extends Cubit<SignupState> {
     img.Image resizedImage = img.copyResize(image!, width: 100); // Resize to 100 pixels wide (maintaining aspect ratio)
     
     // Compress the image to reduce file size
-    List<int> compressedImage = img.encodeJpg(resizedImage, quality: 25); // Adjust quality as needed
+    List<int> compressedImage = img.encodeJpg(resizedImage, quality: 50); // Adjust quality as needed
     
     // Convert to Uint8List
     Uint8List uint8list = Uint8List.fromList(compressedImage);

@@ -172,17 +172,25 @@ class ForumScreen extends StatelessWidget {
                                 children: [
                                   Row(
                                     children: [
-                                      Container(
+                                       Container(
                                         height: 35,
                                         width: 35,
                                         decoration: BoxDecoration(
-                                          color: cardGrayColor,
+                                          color: inCardColor,
+                                          // borderRadius: BorderRadius.circular(8),
                                           shape: BoxShape.circle,
+                                          border: Border.all(color: secondaryColor.withOpacity(0.2), width: 1.2),
+                                          image: DecorationImage(
+                                            image: post.createdUser?.profileUrl != null && post.createdUser!.profileUrl.isNotEmpty
+                                                ? NetworkImage(post.createdUser!.profileUrl)
+                                                : const AssetImage('assets/images/company_placeholder.png') as ImageProvider,
+                                            fit: BoxFit.cover,
+                                          ),
                                         ),
                                       ),
                                       SizedBox(width: 6),
                                       Text(
-                                        '${post.firstName ?? ""} ${post.lastName ?? ""}', // Concatenate firstName and lastName
+                                        '${post.createdUser!.firstName} ${post.createdUser!.lastName}', // Concatenate firstName and lastName
                                         style: TextStyle(
                                           fontSize: 16,
                                           color: white, // Assuming white is a color variable
@@ -238,7 +246,7 @@ class ForumScreen extends StatelessWidget {
                                   CustomButton(
                                     onTap: () => _showCommentsBottomSheet(context, post),
                                     buttonText: "Comments",
-                                    buttonColor: cardGrayColor,
+                                    buttonColor: inCardColor,
                                     textColor: lightGrayColor,
                                     iconColor: lightGrayColor,
                                     leadingIcon: Icons.comment,
