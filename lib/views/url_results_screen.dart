@@ -8,7 +8,7 @@ import 'package:helpifly/helper/helper_functions.dart';
 import 'package:helpifly/widgets/custom_textfield.dart';
 import 'package:helpifly/widgets/custom_button.dart';
 import 'package:helpifly/widgets/widgets_exporter.dart';
-import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
+import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
 
 class UrlResultsScreen extends StatelessWidget {
   UrlResultsScreen({super.key});
