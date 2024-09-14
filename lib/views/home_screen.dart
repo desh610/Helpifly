@@ -322,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           fontWeight: FontWeight.w500),
                                     ),
                                     Text(
-                                      "Telecommunication Service Provider",
+                                      state.services[index].title2,
                                       textAlign: TextAlign.center,
                                       style:
                                           TextStyle(color: white, fontSize: 10),
@@ -346,52 +346,73 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 15),
-                SizedBox(
-                  height: 120,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: 4,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        margin: const EdgeInsets.only(right: 12),
-                        width: 100,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: cardColor,
-                          borderRadius: BorderRadius.circular(8),
+             SizedBox(
+  height: 120,
+  child: BlocBuilder<AppCubit, AppState>(
+    builder: (context, state) {
+      if (state.recommendItems.isEmpty) {
+        return Center(
+          child: Text(
+            "No recommended items available",
+            style: TextStyle(color: Colors.white),
+          ),
+        );
+      }
+
+      return ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: state.recommendItems.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () => _showAddReviewBottomSheet(context, state.recommendItems[index]),
+            child: Container(
+              margin: const EdgeInsets.only(right: 12),
+              width: 100,
+              height: 120,
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    height: 70,
+                    width: 70,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(
+                          state.recommendItems[index].imageUrl,
                         ),
-                        child: Column(
-                          children: [
-                            Container(
-                              height: 70,
-                              width: 70,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: NetworkImage(
-                                      'https://upload.wikimedia.org/wikipedia/commons/3/3a/Airtel_logo-01.png'),
-                                  fit: BoxFit.cover,
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              "Product 1",
-                              style: TextStyle(
-                                  color: white, fontWeight: FontWeight.w500),
-                            ),
-                            Text(
-                              "Telecommunication Service Provider",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: white, fontSize: 10),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                        fit: BoxFit.cover,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                ),
+                  SizedBox(height: 4),
+                  Text(
+                    state.recommendItems[index].title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    state.recommendItems[index].title2,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    },
+  ),
+)
+,
+
                 const SizedBox(height: 15),
               ],
             ),

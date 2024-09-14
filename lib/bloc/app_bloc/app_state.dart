@@ -8,6 +8,7 @@ class AppState {
   final List<RequestModel> requests;
   final List<ItemModel> products;
   final List<ItemModel> services;
+  final List<ItemModel> recommendItems;
   final bool isLoading;
   final String? error;
   final UserInfoModel userInfo;
@@ -21,6 +22,7 @@ class AppState {
     required this.requests,
     required this.products,
     required this.services,
+    required this.recommendItems,
     required this.isLoading,
     this.error,
     required this.userInfo,
@@ -35,6 +37,7 @@ class AppState {
     List<RequestModel>? requests,
     List<ItemModel>? products,
     List<ItemModel>? services,
+    List<ItemModel>? recommendItems,
     bool? isLoading,
     String? error,
     UserInfoModel? userInfo,
@@ -48,6 +51,7 @@ class AppState {
       requests: requests ?? this.requests,
       products: products ?? this.products,
       services: services ?? this.services,
+      recommendItems: recommendItems ?? this.recommendItems,
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
       userInfo: userInfo ?? this.userInfo,

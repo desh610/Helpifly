@@ -87,10 +87,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             appBar: AppBar(
               automaticallyImplyLeading: false,
               backgroundColor: inCardColor,
-              title: const Text('Profile'),
+              title: const Text('Profile', style: TextStyle(color: lightGrayColor, fontSize: 18),),
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.logout),
+                  icon: const Icon(Icons.logout, color: lightGrayColor,),
                   onPressed: () => _logout(context),
                 ),
               ],

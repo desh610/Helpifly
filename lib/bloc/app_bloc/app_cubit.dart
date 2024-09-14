@@ -29,7 +29,7 @@ class AppCubit extends Cubit<AppState> {
             services: [],
             isLoading: false,
             chipSelectedCategory: "Institutes",
-            userInfo: UserInfoModel(firstName: '', lastName: '', email: '', uid: '', profileUrl: ''), currentTabIndex: 0, requests: [])) {
+            userInfo: UserInfoModel(firstName: '', lastName: '', email: '', uid: '', profileUrl: ''), currentTabIndex: 0, requests: [], recommendItems: [])) {
     _loadCategories();
     loadItems();
     loadRequests();
@@ -82,78 +82,192 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-  Future<void> loadItems() async {
-    emit(state.copyWith(isLoading: true));
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? cachedItems = prefs.getString('items');
+  // Future<void> loadItems() async {
+  //   emit(state.copyWith(isLoading: true));
+  //   try {
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     String? cachedItems = prefs.getString('items');
 
-      if (cachedItems != null) {
-        List<dynamic> cachedList = jsonDecode(cachedItems);
-        List<ItemModel> items = cachedList.map((item) => ItemModel.fromJson(item)).toList();
-        List<ItemModel> products = cachedList
-        .where((item) => item['type'] == 'Product') // Filter items where type is 'Product'
-        .map((item) => ItemModel.fromJson(item))
-        .toList();
-        List<ItemModel> services = cachedList
-        .where((item) => item['type'] == 'Service') // Filter items where type is 'Product'
-        .map((item) => ItemModel.fromJson(item))
-        .toList();
+  //     if (cachedItems != null) {
+  //       List<dynamic> cachedList = jsonDecode(cachedItems);
+  //       List<ItemModel> items = cachedList.map((item) => ItemModel.fromJson(item)).toList();
+  //       List<ItemModel> products = cachedList
+  //       .where((item) => item['type'] == 'Product') // Filter items where type is 'Product'
+  //       .map((item) => ItemModel.fromJson(item))
+  //       .toList();
+  //       List<ItemModel> services = cachedList
+  //       .where((item) => item['type'] == 'Service') // Filter items where type is 'Product'
+  //       .map((item) => ItemModel.fromJson(item))
+  //       .toList();
 
-         // Sort products and services by credit in descending order
-      products.sort((a, b) => b.credit.compareTo(a.credit));
-      services.sort((a, b) => b.credit.compareTo(a.credit));
+  //        // Sort products and services by credit in descending order
+  //     products.sort((a, b) => b.credit.compareTo(a.credit));
+  //     services.sort((a, b) => b.credit.compareTo(a.credit));
       
-        emit(state.copyWith(items: items, products: products, services: services, isLoading: false));
-        // Fetch from Firestore to update cache (if needed)
-        _fetchItemsFromFirestore();
-      } else {
-        _fetchItemsFromFirestore(); // Fetch from Firestore if not cached
-      }
-    } catch (e) {
-      emit(state.copyWith(isLoading: false, error: 'Failed to load items: $e'));
-    }
-  }
+  //       emit(state.copyWith(items: items, products: products, services: services, isLoading: false));
+  //       // Fetch from Firestore to update cache (if needed)
+  //       _fetchItemsFromFirestore();
+  //     } else {
+  //       _fetchItemsFromFirestore(); // Fetch from Firestore if not cached
+  //     }
+  //   } catch (e) {
+  //     emit(state.copyWith(isLoading: false, error: 'Failed to load items: $e'));
+  //   }
+  // }
 
-  Future<void> _fetchItemsFromFirestore() async {
-    try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await _firestore.collection('items').get();
+  Future<void> loadItems() async {
+  emit(state.copyWith(isLoading: true));
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? cachedItems = prefs.getString('items');
 
-      List<ItemModel> items = querySnapshot.docs.map((doc) {
-        final data = doc.data();
-        return ItemModel.fromJson(data);
-      }).toList();
+    if (cachedItems != null) {
+      List<dynamic> cachedList = jsonDecode(cachedItems);
 
-      // Filter items based on type
-      List<ItemModel> products =
-          items.where((item) => item.type == 'Product').toList();
-      List<ItemModel> services =
-          items.where((item) => item.type == 'Service').toList();
+      // Deserialize all items
+      List<ItemModel> items = cachedList.map((item) => ItemModel.fromJson(item)).toList();
 
-      // Sort products and services by credit in descending order
+      // Filter items by type: 'Product' and 'Service'
+      List<ItemModel> products = items.where((item) => item.type == 'Product').toList();
+      List<ItemModel> services = items.where((item) => item.type == 'Service').toList();
+
       products.sort((a, b) => b.credit.compareTo(a.credit));
       services.sort((a, b) => b.credit.compareTo(a.credit));
 
-      // Cache items
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('items', jsonEncode(items.map((item) => item.toJson()).toList()));
+      // Group items by category
+      Map<String, ItemModel> highestCreditItemsByCategory = {};
 
-      // Emit the updated state with filtered and sorted lists
+      for (var item in items) {
+        if (highestCreditItemsByCategory.containsKey(item.category)) {
+          if (item.credit > highestCreditItemsByCategory[item.category]!.credit) {
+            highestCreditItemsByCategory[item.category] = item;
+          }
+        } else {
+          highestCreditItemsByCategory[item.category] = item;
+        }
+      }
+
+      List<ItemModel> recommendItems = highestCreditItemsByCategory.values.toList();
+
+      // Emit state with loaded items, products, services, and recommended items
       emit(state.copyWith(
+        items: items,
+        products: products,
+        services: services,
+        recommendItems: recommendItems,
+        isLoading: false,
+      ));
+      _fetchItemsFromFirestore();
+    } else {
+      // Fetch from Firestore if not cached
+      _fetchItemsFromFirestore();
+    }
+  } catch (e) {
+    emit(state.copyWith(isLoading: false, error: 'Failed to load items: $e'));
+  }
+}
+
+
+
+
+  // Future<void> _fetchItemsFromFirestore() async {
+  //   try {
+  //     QuerySnapshot<Map<String, dynamic>> querySnapshot =
+  //         await _firestore.collection('items').get();
+
+  //     List<ItemModel> items = querySnapshot.docs.map((doc) {
+  //       final data = doc.data();
+  //       return ItemModel.fromJson(data);
+  //     }).toList();
+
+  //     // Filter items based on type
+  //     List<ItemModel> products =
+  //         items.where((item) => item.type == 'Product').toList();
+  //     List<ItemModel> services =
+  //         items.where((item) => item.type == 'Service').toList();
+
+  //     // Sort products and services by credit in descending order
+  //     products.sort((a, b) => b.credit.compareTo(a.credit));
+  //     services.sort((a, b) => b.credit.compareTo(a.credit));
+
+  //     // Cache items
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     await prefs.setString('items', jsonEncode(items.map((item) => item.toJson()).toList()));
+
+  //     // Emit the updated state with filtered and sorted lists
+  //     emit(state.copyWith(
+  //         items: items,
+  //         products: products,
+  //         services: services,
+  //         isLoading: false));
+
+  //     // Update search text list after fetching items
+  //     _updateSearchTextList();
+
+  //   } catch (e) {
+  //     emit(state.copyWith(
+  //         isLoading: false, error: 'Failed to fetch items from Firestore: $e'));
+  //   }
+  // }
+
+      Future<void> _fetchItemsFromFirestore() async {
+      try {
+        QuerySnapshot<Map<String, dynamic>> querySnapshot =
+            await _firestore.collection('items').get();
+
+        List<ItemModel> items = querySnapshot.docs.map((doc) {
+          final data = doc.data();
+          return ItemModel.fromJson(data);
+        }).toList();
+
+        // Filter items based on type
+        List<ItemModel> products =
+            items.where((item) => item.type == 'Product').toList();
+        List<ItemModel> services =
+            items.where((item) => item.type == 'Service').toList();
+
+        // Sort products and services by credit in descending order
+        products.sort((a, b) => b.credit.compareTo(a.credit));
+        services.sort((a, b) => b.credit.compareTo(a.credit));
+
+        // Cache items
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('items', jsonEncode(items.map((item) => item.toJson()).toList()));
+
+         // Group items by category
+      Map<String, ItemModel> highestCreditItemsByCategory = {};
+
+      for (var item in items) {
+        if (highestCreditItemsByCategory.containsKey(item.category)) {
+          if (item.credit > highestCreditItemsByCategory[item.category]!.credit) {
+            highestCreditItemsByCategory[item.category] = item;
+          }
+        } else {
+          highestCreditItemsByCategory[item.category] = item;
+        }
+      }
+
+      List<ItemModel> recommendItems = highestCreditItemsByCategory.values.toList();
+
+        // Emit the updated state with filtered and sorted lists, including recommended items
+        emit(state.copyWith(
           items: items,
           products: products,
           services: services,
-          isLoading: false));
+          recommendItems: recommendItems,
+          isLoading: false,
+        ));
 
-      // Update search text list after fetching items
-      _updateSearchTextList();
+        // Update search text list after fetching items
+        _updateSearchTextList();
 
-    } catch (e) {
-      emit(state.copyWith(
-          isLoading: false, error: 'Failed to fetch items from Firestore: $e'));
+      } catch (e) {
+        emit(state.copyWith(
+          isLoading: false, error: 'Failed to fetch items from Firestore: $e',
+        ));
+      }
     }
-  }
+
 
   Future<void> _loadUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
