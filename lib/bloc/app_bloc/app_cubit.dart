@@ -170,11 +170,11 @@ class AppCubit extends Cubit<AppState> {
       }
     } else {
       // Fetch from Firestore if not cached
-      _fetchUserInfoFromFirestore();
+      fetchUserInfoFromFirestore();
     }
   }
 
-  Future<void> _fetchUserInfoFromFirestore() async {
+  Future<void> fetchUserInfoFromFirestore() async {
     try {
       User? currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {

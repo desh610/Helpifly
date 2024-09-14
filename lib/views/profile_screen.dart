@@ -61,6 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await prefs.remove('user_info');
       await prefs.remove('items');
       await prefs.remove('posts');
+      await prefs.remove('searchTextList');
 
       await FirebaseAuth.instance.signOut();
 
