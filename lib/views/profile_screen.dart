@@ -62,6 +62,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await prefs.remove('items');
       await prefs.remove('posts');
       await prefs.remove('searchTextList');
+      await prefs.remove('requests');
 
       await FirebaseAuth.instance.signOut();
 
@@ -86,8 +87,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             backgroundColor: primaryColor,
             appBar: AppBar(
               automaticallyImplyLeading: false,
-              backgroundColor: inCardColor,
-              title: const Text('Profile', style: TextStyle(color: lightGrayColor, fontSize: 18),),
+              backgroundColor: primaryColor,
+              centerTitle: true,
+              title: const Text('Profile', style: TextStyle(color: lightGrayColor, fontSize: 16),),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.logout, color: lightGrayColor,),

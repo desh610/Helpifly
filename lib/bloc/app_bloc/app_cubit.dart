@@ -4,10 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:helpifly/bloc/forum_bloc/forum_cubit.dart';
-import 'package:helpifly/constants/colors.dart';
 import 'package:helpifly/models/request_model.dart';
 import 'package:helpifly/widgets/screen_loading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -280,7 +279,9 @@ class AppCubit extends Cubit<AppState> {
       } catch (e) {
         // Handle JSON decode error
         emit(state.copyWith(userInfo: UserInfoModel(firstName: 'User', lastName: '', email: '', uid: '', profileUrl: '')));
-        print('Error decoding user info: $e');
+        if (kDebugMode) {
+          print('Error decoding user info: $e');
+        }
       }
     } else {
       // Fetch from Firestore if not cached
@@ -517,7 +518,9 @@ Future<void> updateReview({
   } catch (e) {
     Loading().stopLoading(context);
     emit(state.copyWith(isLoading: false, error: 'Failed to update review: $e'));
-    print('Error during review update: $e');
+    if (kDebugMode) {
+      print('Error during review update: $e');
+    }
   }
 }
 
@@ -537,17 +540,25 @@ Future<http.Response> analyze(String feedback) async {
 
       if (response.statusCode == 200) {
         // If the server returns a 200 OK response, parse the JSON.
-        print('Response status: ${response.statusCode}');
-        print('Response body: ${response.body}');
+        if (kDebugMode) {
+          print('Response status: ${response.statusCode}');
+        }
+        if (kDebugMode) {
+          print('Response body: ${response.body}');
+        }
       } else {
         // If the server did not return a 200 OK response,
         // then throw an exception.
-        print('Failed to load. Status code: ${response.statusCode}');
+        if (kDebugMode) {
+          print('Failed to load. Status code: ${response.statusCode}');
+        }
       }
 
       return response;
     } catch (e) {
-      print('Error during sentiment analysis: $e');
+      if (kDebugMode) {
+        print('Error during sentiment analysis: $e');
+      }
       rethrow;
     }
   }
@@ -705,6 +716,14 @@ Future<void> updateProfile({
       requestImageUrl = await _uploadRequestImage(generatedId, requestImage);
     }
 
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      emit(state.copyWith(isLoading: false, error: 'User not logged in'));
+      return;
+    }
+
+    String uid = currentUser.uid;
+
 
     // Create ItemModel object with the generated ID
     RequestModel requestModel = RequestModel(
@@ -718,6 +737,7 @@ Future<void> updateProfile({
       reviews: [],
       type: type, 
       status: 'pending',
+      requestedBy: uid,
     );
 
     // Save item info to Firestore with the generated ID
@@ -730,6 +750,7 @@ Future<void> updateProfile({
 
     emit(state.copyWith(isLoading: false));
     print('Item added successfully!');
+    _fetchRequestsFromFirestore();
     // _fetchItemsFromFirestore();
   } on FirebaseAuthException catch (e) {
     emit(state.copyWith(isLoading: false));

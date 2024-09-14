@@ -25,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     context.read<AppCubit>().loadItems();
+    context.read<AppCubit>().loadRequests();
     searchTextController.addListener(_filterSearchText);
   }
 

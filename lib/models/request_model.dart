@@ -12,6 +12,7 @@ class RequestModel {
   final List<Review> reviews;
   final String imageUrl;
   final String status;
+  final String requestedBy;
 
   RequestModel({
     required this.id,
@@ -24,6 +25,7 @@ class RequestModel {
     required this.reviews,
     required this.imageUrl,
     required this.status,
+    required this.requestedBy,
   });
 
   factory RequestModel.fromJson(Map<String, dynamic> json) {
@@ -44,6 +46,7 @@ class RequestModel {
               .toList()
           : [],
       status: json['status'],
+      requestedBy: json['requestedBy'],
     );
   }
 
@@ -59,6 +62,7 @@ class RequestModel {
       'reviews': reviews.map((review) => review.toJson()).toList(),
       'imageUrl': imageUrl,
       'status': status,
+      'requestedBy': requestedBy,
     };
   }
 
@@ -74,6 +78,7 @@ class RequestModel {
     List<Review>? reviews,
     String? imageUrl,
     String? status,
+    String? requestedBy,
   }) {
     return RequestModel(
       id: id ?? this.id,
@@ -86,6 +91,7 @@ class RequestModel {
       reviews: reviews ?? this.reviews,
       imageUrl: imageUrl ?? this.imageUrl,
       status: status ?? this.status,
+      requestedBy: requestedBy ?? this.requestedBy,
     );
   }
 }
