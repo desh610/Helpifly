@@ -8,9 +8,10 @@ import 'package:helpifly/views/home_screen.dart';
 import 'package:helpifly/views/profile_screen.dart';
 import 'package:helpifly/views/requests_screen.dart';
 import 'package:helpifly/views/url_results_screen.dart';
+import 'package:helpifly/widgets/screen_loading.dart';
 
 class MainScreen extends StatefulWidget {
-  MainScreen({super.key});
+  const MainScreen({super.key});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -25,16 +26,17 @@ class _MainScreenState extends State<MainScreen> {
     ProfileScreen(),
   ];
 
-  void _onItemTapped(BuildContext context, int index) {
-    context.read<AppCubit>().setCurrentTabIndex(index);
+  @override
+  void initState() {
+    super.initState();
+    // Load the items and requests once during initialization
+    final appCubit = context.read<AppCubit>();
+    appCubit.loadItems();
+    appCubit.loadRequests();
   }
 
-    @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    context.read<AppCubit>().loadItems();
-    context.read<AppCubit>().loadRequests();
+  void _onItemTapped(int index) {
+    context.read<AppCubit>().setCurrentTabIndex(index);
   }
 
   @override
@@ -48,7 +50,7 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: BlocBuilder<AppCubit, AppState>(
         builder: (context, state) {
           return BottomNavigationBar(
-            items: const <BottomNavigationBarItem>[
+            items: const [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home),
                 label: 'Home',
@@ -71,8 +73,8 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ],
             currentIndex: state.currentTabIndex,
-            onTap: (index) => _onItemTapped(context, index),
-            selectedItemColor: grayColor,
+            onTap: _onItemTapped,
+            selectedItemColor: grayColor,  // Use your predefined color
             unselectedItemColor: Colors.grey,
             backgroundColor: inCardColor,
             type: BottomNavigationBarType.fixed,

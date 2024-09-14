@@ -24,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    context.read<AppCubit>().loadItems();
     searchTextController.addListener(_filterSearchText);
   }
 
@@ -218,14 +219,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 120,
                   child: BlocBuilder<AppCubit, AppState>(
                     builder: (context, state) {
-                      if (state.isLoading) {
-                        return SizedBox();
-                        // return Skeletons(context: context).homeScreenLoaders();
-                      } else if (state.error != null) {
-                        return Center(
-                            child: Text(state.error!,
-                                style: TextStyle(color: white)));
-                      } else {
                         return ListView.builder(
                           scrollDirection: Axis.horizontal,
                           physics: const BouncingScrollPhysics(),
@@ -275,7 +268,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           },
                         );
-                      }
                     },
                   ),
                 ),
@@ -293,13 +285,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 120,
                   child: BlocBuilder<AppCubit, AppState>(
                     builder: (context, state) {
-                      if (state.isLoading) {
-                       return Text("xxxxxxxx");
-                      } else if (state.error != null) {
-                        return Center(
-                            child: Text(state.error!,
-                                style: TextStyle(color: white)));
-                      } else {
                         return ListView.builder(
                           scrollDirection: Axis.horizontal,
                           physics: const BouncingScrollPhysics(),
@@ -348,7 +333,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           },
                         );
-                      }
                     },
                   ),
                 ),

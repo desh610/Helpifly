@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Helpifly',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: Colors.amber,
         ),
         home: StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
